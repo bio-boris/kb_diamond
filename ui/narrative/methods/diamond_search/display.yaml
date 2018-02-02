@@ -1,0 +1,98 @@
+#
+# define display information
+#
+name: Diamond Search
+
+tooltip: |
+    Search for matches to a sequence
+
+screenshots: []
+
+icon: icon.png
+
+#
+# define a set of similar methods that might be useful to the user
+#
+suggestions:
+    apps:
+        related:
+            [app1, app2]
+        next:
+            [app3, app4]
+    methods:
+        related:
+            [method1, method2]
+        next:
+            [method3, method4]
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    input_one_sequence:
+        ui-name : |
+            Query Sequence (optional)
+        short-hint : |
+            Single DNA sequence to use for the search.  If you enter something here, Output Query Object will be created with this sequence as a SequenceSet with one element.
+        placeholder : |
+            Optionally enter DNA sequence...
+    input_one_ref:
+        ui-name : |
+            Query Object (optional)
+        short-hint : |
+            Query with single DNA sequence to use as query.  Data types may be Feature or SequenceSet (with one sequence)
+        placeholder : |
+            ...or select DNA Query Object
+    output_one_name:
+        ui-name : |
+            Output Query Object (if Query Seq)
+        short-hint : |
+            Created if sequence entered above.  Data type is SequenceSet (with one sequence).
+    input_many_ref:
+        ui-name : |
+            Targets Object
+        short-hint : |
+            DNA Targets object to be searched.  Data types may be FeatureSet, Genome, or GenomeSet.
+    output_filtered_name:
+        ui-name : |
+            Output Object
+        short-hint : |
+            Object containing matches.  Output will be FeatureSet.
+    ident_thresh:
+        ui-name : |
+            Identity Threshold (%)
+        short-hint : |
+            threshold for hits
+    e_value:
+        ui-name : |
+            E-value
+        short-hint : |
+            threshold for hits
+    bitscore:
+        ui-name : |
+            Bit Score
+        short-hint : |
+            threshold for hits
+    overlap_fraction:
+        ui-name : |
+            Alignment Overlap Threshold (%)
+        short-hint : |
+            threshold for hits
+    maxaccepts:
+        ui-name : |
+            Max Accepts
+        short-hint : |
+            limits the number of hits in result.  Default: 1000
+    output_extra_format:
+        ui-name : |
+            Extra text output format
+        short-hint : |
+            generate an additional output file.  you get tabular m=7 (which used to be m=8) for free.
+
+
+description : |
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed pulvinar efficitur felis, quis tincidunt sem congue at. Vivamus ornare feugiat faucibus. Fusce tincidunt mattis nunc, nec varius purus convallis quis. Nulla facilisi. In at magna dolor. Suspendisse sit amet felis at arcu auctor dapibus vitae pharetra dui. Nam semper mi quis tortor fermentum mollis. Donec a arcu pharetra, rutrum dolor vitae, rutrum mauris. Donec ornare fringilla sagittis. Nam laoreet est in elementum malesuada. Vestibulum id mi eget urna hendrerit feugiat. Donec et ultrices nulla. Phasellus diam eros, dapibus at tempus nec, semper vel ante.</p>
+
+    <p>Curabitur auctor, metus at tristique euismod, odio elit tincidunt neque, a facilisis sem massa convallis dolor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nunc ut hendrerit tellus. Nunc lacinia laoreet finibus. Etiam vitae sagittis enim. Fusce consectetur porta est eu pretium. In hac habitasse platea dictumst. Integer pellentesque sit amet sapien id venenatis. Nullam ac risus at orci eleifend aliquet. Vestibulum elit purus, euismod a nibh quis, pellentesque semper leo. Curabitur ullamcorper felis hendrerit nunc egestas, sit amet pharetra sapien porttitor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Maecenas hendrerit ipsum a ligula aliquet vestibulum. Duis a ante urna. Aenean ante neque, rhoncus id luctus ut, accumsan vel nunc.</p>
+
+    <p>Pellentesque accumsan aliquet magna, id consectetur tellus condimentum eu. Suspendisse elit dui, ornare ac leo eget, tincidunt feugiat orci. Maecenas auctor gravida lacinia. Mauris interdum nisi vel gravida varius. Nullam tempus, purus eget posuere aliquet, odio elit semper massa, quis facilisis massa odio vitae lacus. Fusce varius enim a mi vehicula tempus. Maecenas faucibus tellus ipsum, at venenatis ipsum auctor et. Suspendisse sem mi, dignissim id porta efficitur, auctor eget magna. Vivamus varius purus nulla, porttitor euismod lorem cursus quis. Nulla sit amet eros nec sem ultrices pulvinar.</p>
