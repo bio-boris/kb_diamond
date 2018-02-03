@@ -86,6 +86,31 @@ class kb_diamondTest(unittest.TestCase):
         #
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
+
+        obj_basename = 'tBLASTn'
+        obj_out_name = obj_basename + '.' + "test_output.FS"
+        obj_out_type = "KBaseCollections.FeatureSet"
+
+        reference_prok_genomes_WS = 'ReferenceDataManager'  # PROD and CI
+        genome_ref_1 = 'ReferenceDataManager/GCF_001566335.1/1'  # E. coli K-12 MG1655
+
+        parameters = { 'workspace_name': self.getWsName(),
+                       'input_one_sequence': "ATGCATGC",
+                       #'input_one_ref': "",
+                       'output_one_name': obj_basename+'.'+"test_query.SS",
+                       'input_many_ref': genome_ref_1,
+                       'output_filtered_name': obj_out_name,
+                       'e_value': ".001",
+                       'bitscore': "50",
+                       'ident_thresh': "40",
+                       'overlap_fraction': "50",
+                       'maxaccepts': "1000",
+                       'output_extra_format': "none" }
+
+
+        ret = self.getImpl().tBLASTn_Search(self.getContext(), parameters)[0]
+        
+
         pass
 
 

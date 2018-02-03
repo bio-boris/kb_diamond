@@ -108,9 +108,9 @@ sub new
 
 
 
-=head2 Diamond_Search
+=head2 Diamond_Blastp_Search
 
-  $output = $obj->Diamond_Search($params)
+  $output = $obj->Diamond_Blastp_Search($params)
 
 =over 4
 
@@ -176,18 +176,13 @@ Diamond_Output is a reference to a hash where the following keys are defined:
 
 =item Description
 
-Methods for BLAST of various flavors of one sequence against many sequences
-**
-**    overloading as follows:
-**        input_one_type: SequenceSet, Feature, FeatureSet
-**        input_many_type: SequenceSet, SingleEndLibrary, FeatureSet, Genome, GenomeSet
-**        output_type: SequenceSet (if input_many is SS), SingleEndLibrary (if input_many is SELib), (else) FeatureSet
+Methods for BLAST of various flavors of one or more sequences against many sequences
 
 =back
 
 =cut
 
- sub Diamond_Search
+ sub Diamond_Blastp_Search
 {
     my($self, @args) = @_;
 
@@ -196,7 +191,7 @@ Methods for BLAST of various flavors of one sequence against many sequences
     if ((my $n = @args) != 1)
     {
 	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
-							       "Invalid argument count for function Diamond_Search (received $n, expecting 1)");
+							       "Invalid argument count for function Diamond_Blastp_Search (received $n, expecting 1)");
     }
     {
 	my($params) = @args;
@@ -204,31 +199,153 @@ Methods for BLAST of various flavors of one sequence against many sequences
 	my @_bad_arguments;
         (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
         if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to Diamond_Search:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    my $msg = "Invalid arguments passed to Diamond_Blastp_Search:\n" . join("", map { "\t$_\n" } @_bad_arguments);
 	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
-								   method_name => 'Diamond_Search');
+								   method_name => 'Diamond_Blastp_Search');
 	}
     }
 
     my $url = $self->{url};
     my $result = $self->{client}->call($url, $self->{headers}, {
-	    method => "kb_diamond.Diamond_Search",
+	    method => "kb_diamond.Diamond_Blastp_Search",
 	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
 	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
 					       code => $result->content->{error}->{code},
-					       method_name => 'Diamond_Search',
+					       method_name => 'Diamond_Blastp_Search',
 					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
 					      );
 	} else {
 	    return wantarray ? @{$result->result} : $result->result->[0];
 	}
     } else {
-        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method Diamond_Search",
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method Diamond_Blastp_Search",
 					    status_line => $self->{client}->status_line,
-					    method_name => 'Diamond_Search',
+					    method_name => 'Diamond_Blastp_Search',
+				       );
+    }
+}
+ 
+
+
+=head2 Diamond_Blastx_Search
+
+  $output = $obj->Diamond_Blastx_Search($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a kb_diamond.Diamond_Params
+$output is a kb_diamond.Diamond_Output
+Diamond_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_diamond.workspace_name
+	input_one_sequence has a value which is a kb_diamond.sequence
+	input_one_ref has a value which is a kb_diamond.data_obj_ref
+	input_many_ref has a value which is a kb_diamond.data_obj_ref
+	output_one_name has a value which is a kb_diamond.data_obj_name
+	output_filtered_name has a value which is a kb_diamond.data_obj_name
+	ident_thresh has a value which is a float
+	e_value has a value which is a float
+	bitscore has a value which is a float
+	overlap_fraction has a value which is a float
+	maxaccepts has a value which is a float
+	output_extra_format has a value which is a string
+workspace_name is a string
+sequence is a string
+data_obj_ref is a string
+data_obj_name is a string
+Diamond_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a string
+	report_ref has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a kb_diamond.Diamond_Params
+$output is a kb_diamond.Diamond_Output
+Diamond_Params is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a kb_diamond.workspace_name
+	input_one_sequence has a value which is a kb_diamond.sequence
+	input_one_ref has a value which is a kb_diamond.data_obj_ref
+	input_many_ref has a value which is a kb_diamond.data_obj_ref
+	output_one_name has a value which is a kb_diamond.data_obj_name
+	output_filtered_name has a value which is a kb_diamond.data_obj_name
+	ident_thresh has a value which is a float
+	e_value has a value which is a float
+	bitscore has a value which is a float
+	overlap_fraction has a value which is a float
+	maxaccepts has a value which is a float
+	output_extra_format has a value which is a string
+workspace_name is a string
+sequence is a string
+data_obj_ref is a string
+data_obj_name is a string
+Diamond_Output is a reference to a hash where the following keys are defined:
+	report_name has a value which is a string
+	report_ref has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+ sub Diamond_Blastx_Search
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function Diamond_Blastx_Search (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to Diamond_Blastx_Search:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'Diamond_Blastx_Search');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "kb_diamond.Diamond_Blastx_Search",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'Diamond_Blastx_Search',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method Diamond_Blastx_Search",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'Diamond_Blastx_Search',
 				       );
     }
 }
@@ -276,16 +393,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'Diamond_Search',
+                method_name => 'Diamond_Blastx_Search',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method Diamond_Search",
+            error => "Error invoking method Diamond_Blastx_Search",
             status_line => $self->{client}->status_line,
-            method_name => 'Diamond_Search',
+            method_name => 'Diamond_Blastx_Search',
         );
     }
 }

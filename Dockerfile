@@ -35,7 +35,7 @@ RUN chmod -R a+rw /kb/module
 
 # Install Diamond Binary v0.9.17
 WORKDIR /kb/deployment/bin
-RUN wget http://github.com/bbuchfink/diamond/releases/download/v0.9.17/diamond-linux64.tar.gz \
+RUN wget https://github.com/bbuchfink/diamond/releases/download/v0.9.17/diamond-linux64.tar.gz \
     && tar -xvf diamond-linux64.tar.gz diamond \
     && rm diamond-linux64.tar.gz
 

@@ -333,10 +333,14 @@ class Application(object):
         self.serverlog.set_log_level(6)
         self.rpc_service = JSONRPCServiceCustom()
         self.method_authentication = dict()
-        self.rpc_service.add(impl_kb_diamond.Diamond_Search,
-                             name='kb_diamond.Diamond_Search',
+        self.rpc_service.add(impl_kb_diamond.Diamond_Blastp_Search,
+                             name='kb_diamond.Diamond_Blastp_Search',
                              types=[dict])
-        self.method_authentication['kb_diamond.Diamond_Search'] = 'required'  # noqa
+        self.method_authentication['kb_diamond.Diamond_Blastp_Search'] = 'required'  # noqa
+        self.rpc_service.add(impl_kb_diamond.Diamond_Blastx_Search,
+                             name='kb_diamond.Diamond_Blastx_Search',
+                             types=[dict])
+        self.method_authentication['kb_diamond.Diamond_Blastx_Search'] = 'required'  # noqa
         self.rpc_service.add(impl_kb_diamond.status,
                              name='kb_diamond.status',
                              types=[dict])

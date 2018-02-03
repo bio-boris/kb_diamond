@@ -163,25 +163,37 @@ public class KbDiamondClient {
     }
 
     /**
-     * <p>Original spec-file function name: Diamond_Search</p>
+     * <p>Original spec-file function name: Diamond_Blastp_Search</p>
      * <pre>
-     * Methods for BLAST of various flavors of one sequence against many sequences
-     * **
-     * **    overloading as follows:
-     * **        input_one_type: SequenceSet, Feature, FeatureSet
-     * **        input_many_type: SequenceSet, SingleEndLibrary, FeatureSet, Genome, GenomeSet
-     * **        output_type: SequenceSet (if input_many is SS), SingleEndLibrary (if input_many is SELib), (else) FeatureSet
+     * Methods for BLAST of various flavors of one or more sequences against many sequences
      * </pre>
      * @param   params   instance of type {@link us.kbase.kbdiamond.DiamondParams DiamondParams} (original type "Diamond_Params")
      * @return   parameter "output" of type {@link us.kbase.kbdiamond.DiamondOutput DiamondOutput} (original type "Diamond_Output")
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public DiamondOutput diamondSearch(DiamondParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public DiamondOutput diamondBlastpSearch(DiamondParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<DiamondOutput>> retType = new TypeReference<List<DiamondOutput>>() {};
-        List<DiamondOutput> res = caller.jsonrpcCall("kb_diamond.Diamond_Search", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        List<DiamondOutput> res = caller.jsonrpcCall("kb_diamond.Diamond_Blastp_Search", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: Diamond_Blastx_Search</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.kbdiamond.DiamondParams DiamondParams} (original type "Diamond_Params")
+     * @return   parameter "output" of type {@link us.kbase.kbdiamond.DiamondOutput DiamondOutput} (original type "Diamond_Output")
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public DiamondOutput diamondBlastxSearch(DiamondParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<DiamondOutput>> retType = new TypeReference<List<DiamondOutput>>() {};
+        List<DiamondOutput> res = caller.jsonrpcCall("kb_diamond.Diamond_Blastx_Search", args, retType, true, true, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
