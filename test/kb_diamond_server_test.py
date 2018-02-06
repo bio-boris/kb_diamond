@@ -108,8 +108,8 @@ class kb_diamondTest(unittest.TestCase):
                        'output_extra_format': "none" }
 
 
-        ret = self.getImpl().tBLASTn_Search(self.getContext(), parameters)[0]
-        
+        ret = self.getImpl().Diamond_Blastp_Search(self.getContext(), parameters)[0]
+
 
         pass
 

@@ -36,21 +36,6 @@ class kb_diamond:
         #END_CONSTRUCTOR
         pass
 
-    def process_params(self, params):
-        valid_commands = ['makedb', 'blastp', 'blastx', 'view', 'version', 'dbinfo', 'help']
-        makedb_options = ['in', 'db']
-        general_options = ['threads']
-        output_options = ['out']
-        return True
-
-    #Need to support STDIN eventually
-    def makedb(self,file_names):
-        for file in file_names:
-            command = "{0} makedb --in {1} --db {1}".format([self.diamond,file])
-            print(command)
-
-
-
     def Diamond_Blastp_Search(self, ctx, params):
         """
         Methods for BLAST of various flavors of one or more sequences against many sequences
@@ -78,6 +63,7 @@ class kb_diamond:
         # ctx is the context object
         # return variables are: output
         #BEGIN Diamond_Blastp_Search
+        print("begin")
 
         validate_params = self.process_params(params)
         #1) Create a datbase with the file
@@ -86,7 +72,7 @@ class kb_diamond:
         self.makedb(file)
 
 
-
+        output = {'success':True}
 
         #END Diamond_Blastp_Search
 
@@ -141,3 +127,16 @@ class kb_diamond:
                      'git_commit_hash': self.GIT_COMMIT_HASH}
         #END_STATUS
         return [returnVal]
+
+    def process_params(self, params):
+        valid_commands = ['makedb', 'blastp', 'blastx', 'view', 'version', 'dbinfo', 'help']
+        makedb_options = ['in', 'db']
+        general_options = ['threads']
+        output_options = ['out']
+        return True
+
+    #Need to support STDIN eventually
+    def makedb(self,file_names):
+        for file in file_names:
+            command = "{0} makedb --in {1} --db {1}".format([self.diamond,file])
+            print(command)
