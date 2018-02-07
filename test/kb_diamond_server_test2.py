@@ -94,11 +94,11 @@ class kb_diamondTest(unittest.TestCase):
                       'maxaccepts': "1000",
                       'output_extra_format': "none"}
 
-        file = "/kb/data/Athaliana_167_TAIR10.protein.fa"
+        file = "/kb/module/data/Athaliana_167_TAIR10.protein.fa"
         if not os.path.isfile(file):
             file = "/Users/celsloaner/modules/kb_diamond/data/Athaliana_167_TAIR10.protein.fa"
 
-        query_filepath = "/kb/data/query.fa"
+        query_filepath = "/kb/module/data/query_nt.fa"
         if not os.path.isfile(query_filepath):
             query_filepath = "/Users/celsloaner/modules/kb_diamond/data/query_nt.fa"
 
@@ -126,11 +126,11 @@ class kb_diamondTest(unittest.TestCase):
                       'maxaccepts': "1000",
                       'output_extra_format': "none"}
 
-        file = "/kb/data/Athaliana_167_TAIR10.protein.fa"
+        file = "/kb/module/data/Athaliana_167_TAIR10.protein.fa"
         if not os.path.isfile(file):
             file = "/Users/celsloaner/modules/kb_diamond/data/Athaliana_167_TAIR10.protein.fa"
 
-        query_filepath = "/kb/data/query.fa"
+        query_filepath = "/kb/module/data/query_nt_broken.fa"
         if not os.path.isfile(query_filepath):
             query_filepath = "/Users/celsloaner/modules/kb_diamond/data/query_nt_broken.fa"
 
