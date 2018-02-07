@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-# BEGIN_HEADER
+#BEGIN_HEADER
 from collections import namedtuple
-from subprocess import Popen, check_output
+from subprocess import Popen, check_output, CalledProcessError
 import os
-
-
-# END_HEADER
+#END_HEADER
 
 
 class kb_diamond:
-    """
+    '''
     Module Name:
     kb_diamond
 
     Module Description:
     A KBase module: kb_diamond
-    """
+    '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
     # Since asynchronous IO can lead to methods - even the same method -
@@ -25,25 +23,25 @@ class kb_diamond:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/bio-boris/kb_diamond.git"
-    GIT_COMMIT_HASH = "a914f9a9d486ed6c2e0739580e27b386b0d1faad"
+    GIT_COMMIT_HASH = "79aa414d15225c84a7a34b5b468bac7faa0c94c1"
 
-    # BEGIN_CLASS_HEADER
+    #BEGIN_CLASS_HEADER
     fasta_file = namedtuple("fasta_file", "file_path stdin")
     diamond = "/kb/deployment/bin/diamond"
     if not os.path.isfile(diamond):
         diamond = "diamond"
 
-    database_stats = namedtuple('database_stats', 'makedb_output dbinfo_output')
-    diamond_search_result = namedtuple('diamond_search_result', 'search_output output_filename search_parameters')
+    database_stats = namedtuple("database_stats", "makedb_output dbinfo_output")
+    blast_output = namedtuple("blast_output", "result output_filename search_parameters")
+    #END_CLASS_HEADER
 
-    # END_CLASS_HEADER
-
-    # config contains contents of config file in a hash or None if it couldn"t
+    # config contains contents of config file in a hash or None if it couldn't
     # be found
     def __init__(self, config):
-        # BEGIN_CONSTRUCTOR
-        # END_CONSTRUCTOR
+        #BEGIN_CONSTRUCTOR
+        #END_CONSTRUCTOR
         pass
+
 
     def Diamond_Blastp_Search(self, ctx, params):
         """
@@ -51,8 +49,8 @@ class kb_diamond:
         :param params: instance of type "Diamond_Params" (Diamond Input
            Params) -> structure: parameter "workspace_name" of type
            "workspace_name" (** The workspace object refs are of form: ** ** 
-           objects = ws.get_objects([{"ref":
-           params["workspace_id"]+"/"+params["obj_name"]}]) ** ** "ref" means
+           objects = ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
            the entire name combining the workspace id and the object name **
            "id" is a numerical identifier of the workspace or object, and
            should just be used for workspace ** "name" is a string identifier
@@ -71,18 +69,18 @@ class kb_diamond:
         """
         # ctx is the context object
         # return variables are: output
-
-        makedbs_output = self.makedbs(params['databases'])
-        blastp_output = self.blast(query_filepath=params['query_filepath'], databases=params['databases'],
-                                   blast_type="blastp")
-        output = {"success": True}
-
-        # END Diamond_Blastp_Search
+        #BEGIN Diamond_Blastp_Search
+        makedbs_output = self.makedbs(params["databases"])
+        blastp_output = self.blast(params)
+        output = {"success": True ,
+                  "makedb" : makedbs_output,
+                  "blast_outputs" : blastp_output}
+        #END Diamond_Blastp_Search
 
         # At some point might do deeper type checking...
         if not isinstance(output, dict):
-            raise ValueError("Method Diamond_Blastp_Search return value " +
-                             "output is not type dict as required.")
+            raise ValueError('Method Diamond_Blastp_Search return value ' +
+                             'output is not type dict as required.')
         # return the results
         return [output]
 
@@ -91,8 +89,8 @@ class kb_diamond:
         :param params: instance of type "Diamond_Params" (Diamond Input
            Params) -> structure: parameter "workspace_name" of type
            "workspace_name" (** The workspace object refs are of form: ** ** 
-           objects = ws.get_objects([{"ref":
-           params["workspace_id"]+"/"+params["obj_name"]}]) ** ** "ref" means
+           objects = ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
            the entire name combining the workspace id and the object name **
            "id" is a numerical identifier of the workspace or object, and
            should just be used for workspace ** "name" is a string identifier
@@ -111,86 +109,26 @@ class kb_diamond:
         """
         # ctx is the context object
         # return variables are: output
-        # BEGIN Diamond_Blastx_Search
-        # END Diamond_Blastx_Search
+        #BEGIN Diamond_Blastx_Search
+        makedbs_output = self.makedbs(params["databases"])
+        blastx_output = self.blast(params)
+        output = {"success": True ,
+                  "makedb" : makedbs_output,
+                  "blast_outputs" : blastx_output}
+        #END Diamond_Blastx_Search
 
         # At some point might do deeper type checking...
         if not isinstance(output, dict):
-            raise ValueError("Method Diamond_Blastx_Search return value " +
-                             "output is not type dict as required.")
+            raise ValueError('Method Diamond_Blastx_Search return value ' +
+                             'output is not type dict as required.')
         # return the results
         return [output]
-
     def status(self, ctx):
-        # BEGIN_STATUS
+        #BEGIN_STATUS
         returnVal = {"state": "OK",
                      "message": "",
                      "version": self.VERSION,
                      "git_url": self.GIT_URL,
                      "git_commit_hash": self.GIT_COMMIT_HASH}
-        # END_STATUS
+        #END_STATUS
         return [returnVal]
-
-    def process_params(self, params):
-        valid_commands = ["makedb", "blastp", "blastx", "view", "version", "dbinfo", "help"]
-        makedb_options = ["in", "db"]
-        general_options = ["threads"]
-        output_options = ["out"]
-        return True
-
-    # TODO Support <STDIN> sequence collections
-    # TODO Error Handling
-    def makedbs(self, filenames):
-        """
-        Create database for diamond search from a list of input files
-        :param filenames:
-        :return:
-        """
-        status = {}
-        for filename in filenames:
-            status[filename] = self.database_stats(self.makedb(filename),
-                                                   self.dbinfo(filename))
-        return status
-
-    # TODO Check to see if database already exists, and don't create it again
-    # TODO Place in the correct temporary location
-    def makedb(self, filename):
-        """
-        Create a database for diamond to search against
-        :param filename: the filename to
-        :returns: status of command
-        """
-        args = [self.diamond, "makedb", "--in", filename, "--db", filename]
-        return check_output(args)
-
-    def dbinfo(self, filename):
-        """
-        Gather statistics for an existing diamond database file
-        :param filename:
-        :returns: status of command or information about the database file
-        """
-        filename = filename + ".dmnd"
-        args = [self.diamond, "dbinfo", "--db", filename]
-        return check_output(args)
-
-    def blast(self, **parameters):
-        query = parameters['query_filepath']
-        databases = parameters['databases']
-        results = []
-        for database_subject in databases:
-            output_file = "{0}_{1}.out".format(os.path.basename(query), os.path.basename(database_subject))
-            blast_type = parameters['blast']
-            args = [self.diamond, blast_type, "--query", query, "--db", database_subject, '--out', output_file]
-            result = check_output(args)
-            results.append(self.diamond_search_result(result, output_file, parameters))
-        return results
-
-    # TODO REMOVE dmnd files
-    # TODO REMOVE result files
-    def cleanup(self, files):
-        for filename in files:
-            try:
-                os.remove(filename + ".dmnd")
-            except OSError:
-                pass
-            os.remove()
