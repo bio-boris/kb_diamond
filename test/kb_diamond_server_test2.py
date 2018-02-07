@@ -43,20 +43,10 @@ class kb_diamondTest(unittest.TestCase):
         return self.__class__.ctx
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    def test_your_method(self):
-        obj_basename = 'tBLASTn'
-        obj_out_name = obj_basename + '.' + "test_output.FS"
-        obj_out_type = "KBaseCollections.FeatureSet"
-
-        reference_prok_genomes_WS = 'ReferenceDataManager'  # PROD and CI
-        genome_ref_1 = 'ReferenceDataManager/GCF_001566335.1/1'  # E. coli K-12 MG1655
-
+    def test_blastp(self):
         parameters = { 'workspace_name': 'None',
                        'input_one_sequence': "ATGCATGC",
-                       #'input_one_ref': "",
-                       'output_one_name': obj_basename+'.'+"test_query.SS",
-                       'input_many_ref': genome_ref_1,
-                       'output_filtered_name': obj_out_name,
+                       'blast_type': "blastp",
                        'e_value': ".001",
                        'bitscore': "50",
                        'ident_thresh': "40",
@@ -76,8 +66,45 @@ class kb_diamondTest(unittest.TestCase):
         parameters['databases'] = [file]
         parameters['query_filepath'] = query_filepath
 
-        ret = self.getImpl().Diamond_Blastp_Search(None, parameters)
-        self.assertTrue(ret)
+        output = self.getImpl().Diamond_Blastp_Search(None, parameters)[0]
+        blast_output_filename = output['blast_outputs'][0].output_filename
+
+        with open(blast_output_filename) as f:
+            output_file_contents = f.readlines()
+
+        expected = ['ATCG00500.1\tATCG00500.1\t100.0\t489\t0\t0\t1\t489\t1\t489\t2.5e-270\t928.3\n']
+
+        self.assertEqual(expected,output_file_contents)
         pass
 
+    def test_blastx(self):
+        parameters = {'workspace_name': 'None',
+                      'input_one_sequence': "ATGCATGC",
+                      'blast_type': "blastx",
+                      'e_value': ".001",
+                      'bitscore': "50",
+                      'ident_thresh': "40",
+                      'overlap_fraction': "50",
+                      'maxaccepts': "1000",
+                      'output_extra_format': "none"}
 
+        file = "/kb/data/Athaliana_167_TAIR10.protein.fa"
+        if not os.path.isfile(file):
+            file = "/Users/celsloaner/modules/kb_diamond/data/Athaliana_167_TAIR10.protein.fa"
+
+        query_filepath = "/kb/data/query.fa"
+        if not os.path.isfile(query_filepath):
+            query_filepath = "/Users/celsloaner/modules/kb_diamond/data/query.fa"
+
+        parameters['databases'] = [file]
+        parameters['query_filepath'] = query_filepath
+
+        output = self.getImpl().Diamond_Blastp_Search(None, parameters)[0]
+        blast_output_filename = output['blast_outputs'][0].output_filename
+
+        with open(blast_output_filename) as f:
+            output_file_contents = f.readlines()
+
+        expected = ['ATCG00500.1\tATCG00500.1\t100.0\t489\t0\t0\t1\t489\t1\t489\t2.5e-270\t928.3\n']
+
+        self.assertEqual(expected, output_file_contents)
