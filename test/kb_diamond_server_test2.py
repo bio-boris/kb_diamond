@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from os import environ  # noqa: F401
+import os  # noqa: F401
 import json  # noqa: F401
 import time
 import requests
@@ -64,10 +64,20 @@ class kb_diamondTest(unittest.TestCase):
                        'maxaccepts': "1000",
                        'output_extra_format': "none" }
 
+        file = "/kb/data/Athaliana_167_TAIR10.protein.fa"
+        if not os.path.isfile(file):
+            file = "/Users/celsloaner/modules/kb_diamond/data/Athaliana_167_TAIR10.protein.fa"
 
-        ret = self.getImpl().Diamond_Blastp_Search(None, parameters)[0]
 
+        query_filepath = "/kb/data/query.fa"
+        if not os.path.isfile(query_filepath):
+            query_filepath = "/Users/celsloaner/modules/kb_diamond/data/query.fa"
 
+        parameters['databases'] = [file]
+        parameters['query_filepath'] = query_filepath
+
+        ret = self.getImpl().Diamond_Blastp_Search(None, parameters)
+        self.assertTrue(ret)
         pass
 
 
