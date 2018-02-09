@@ -87,9 +87,14 @@ class kb_diamond:
         _generate_report: generate summary report
         """
 
-        output_files = ['output_file']
+        output_files = []
 
-        output_html_files = ['file.html']
+        output_files.append({'path': output_file,
+                             'name': os.path.basename(output_file),
+                             'label': os.path.basename(output_file),
+                             'description': 'Blast Output'})
+
+        output_html_files = []
 
 
         objects_created = []
