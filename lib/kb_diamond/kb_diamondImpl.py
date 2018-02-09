@@ -117,6 +117,18 @@ class kb_diamond:
         return report_output
 
 
+    def load_fasta_file(self, filename, obj_name, contents):
+        f = open(filename, 'w')
+        f.write(contents)
+        f.close()
+        assemblyUtil = AssemblyUtil(self.callback_url)
+        assembly_ref = assemblyUtil.save_assembly_from_fasta({'file': {'path': filename},
+                                                              'workspace_name': self.getWsName(),
+                                                              'assembly_name': obj_name
+                                                              })
+        return assembly_ref
+
+
     #END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn"t
@@ -160,7 +172,21 @@ class kb_diamond:
 
         #BEGIN Diamond_Blastp_Search
         workspace_name = params['workspace_name']
-        assembly_input_ref = params['assembly_input_ref']
+        if params['assembly_input_ref']:
+            assembly_input_ref = params['assembly_input_ref']
+        if params['input_one_sequence']:
+            fasta_content = params['input_one_sequence']
+
+
+            assembly_ref = self.load_fasta_file(os.path.join(self.shared_folder, 'test1.fasta'),
+                                                'TestAssembly',
+                                                fasta_content)
+            params = {'workspace_name': workspace_name,
+                      'assembly_input_ref': assembly_ref,
+                      'min_length': 10
+                      }
+
+
 
         #process_inputs
 
