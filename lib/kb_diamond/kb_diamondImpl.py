@@ -195,7 +195,7 @@ class kb_diamond:
         #blast_output = namedtuple("blast_output", "result output_filename search_parameters")
         return self.generate_report(blast_result.output_filename, workspace_name)
 
-        
+
         # blast_output = namedtuple("blast_output", "result output_filename search_parameters")
         report = []
         # for result in blast_results:
