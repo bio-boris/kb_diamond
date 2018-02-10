@@ -33,20 +33,20 @@ RUN mkdir -p /kb/module/work
 RUN chmod -R a+rw /kb/module
 
 
-# Install Diamond Binary v0.9.17
+#Install Diamond Binary v0.9.17
 #WORKDIR /kb/deployment/bin
 #RUN wget https://github.com/bbuchfink/diamond/releases/download/v0.9.17/diamond-linux64.tar.gz \
 #    && tar -xvf diamond-linux64.tar.gz diamond \
 #    && rm diamond-linux64.tar.gz
 
-WORKDIR /kb/deployment/bin
-    RUN wget https://github.com/bbuchfink/diamond/archive/master.zip \
-    && unzip master.zip \
-    && cd diamond-master \
-    && sh build_simple.sh \
-    && mv diamond ../ \
-    && cd .. \
-    && rm -rf diamond-master
+#WORKDIR /kb/deployment/bin
+#    RUN wget https://github.com/bbuchfink/diamond/archive/master.zip \
+#    && unzip master.zip \
+#    && cd diamond-master \
+#    && sh build_simple.sh \
+#    && mv diamond ../ \
+#    && cd .. \
+#    && rm -rf diamond-master
 
 
 
