@@ -9,13 +9,11 @@ from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDat
 from DataFileUtil.DataFileUtilClient import DataFileUtil as DFUClient
 from KBaseReport.KBaseReportClient import KBaseReport
 
-
 # END_HEADER
 
 database_stats = namedtuple("database_stats", "makedb_output dbinfo_output")
 blast_output = namedtuple("blast_output", "result output_filename search_parameters")
 fasta_file = namedtuple("fasta_file", "file_path stdin")
-
 
 create_db = False
 db_stats = None
@@ -23,6 +21,7 @@ db_stats = None
 diamond = "/kb/deployment/bin/diamond"
 if not os.path.isfile(diamond):
     diamond = "diamond"
+
 
 # TODO Support <STDIN> sequence collections
 # TODO Error Handling
@@ -36,8 +35,7 @@ def makedbs(filenames):
     status = {}
     for filename in filenames:
         status[filename] = database_stats(makedb(filename),
-                                               dbinfo(filename))
-
+                                          dbinfo(filename))
 
 
 # TODO Check to see if database already exists, and don"t create it again
@@ -53,7 +51,6 @@ def makedb(filename):
     return check_output(args)
 
 
-
 def dbinfo(filename):
     """
     Gather statistics for an existing diamond database file
@@ -65,24 +62,30 @@ def dbinfo(filename):
     return check_output(args)
 
 
-
 def blast(parameters):
-    query = parameters["query_filepath"]
-    databases = parameters["databases"]
+    """
+    Build a database and blast against it
+    :param parameters: 
+    :return: 
+    """
+    query_fasta_filepath = parameters["query_fasta_filepath"]
+    subject_fasta_filepath = parameters["subject_fasta_filepath"]
+    db = subject_fasta_filepath + ".dmnd"
     blast_type = parameters["blast_type"]
 
-    results = []
-    for database_subject in databases:
-        output_file = "{0}_{1}.out".format(os.path.basename(query), os.path.basename(database_subject))
+    makedb(subject_fasta_filepath)
 
-        args = [diamond, blast_type, "--query", query, "--db", database_subject, "--out", output_file]
-        try:
-            result = check_output(args)
-            results.append(blast_output(result, output_file, parameters))
-        except CalledProcessError as e:
-            results.append(blast_output(e, output_file, parameters))
-
-    return results
+    output_file = "{0}/{1}_{2}.out".format(
+        os.path.dirname(query_fasta_filepath),
+        os.path.basename(query_fasta_filepath),
+        os.path.basename(subject_fasta_filepath)
+    )
+    args = [diamond, blast_type, "--query", query_fasta_filepath, "--db", db, "--out", output_file]
+    try:
+        result = check_output(args)
+        return blast_output(result, output_file, parameters)
+    except CalledProcessError as e:
+        return blast_output(e, output_file, parameters)
 
 
 # TODO REMOVE dmnd files
@@ -96,7 +99,10 @@ def cleanup(files):
             pass
 
 
-#@staticmethod
+
+
+
+# @staticmethod
 # def process_params(parameters):
 #     source = parameters['source']
 #     if source == 'command-line':

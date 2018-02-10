@@ -56,15 +56,21 @@ class kb_diamond:
     blast_output = namedtuple("blast_output", "result output_filename search_parameters")
 
 
-    def get_query_filepath(self,params):
-        #Convert String input to File
-        if True:
+    def get_fasta_filepath(self,params):
+        if 'input_one_sequence' in params:
+            sequence = params['input_one_sequence']
+            filename = os.path.join(self.shared_folder, 'STDIN.fasta')
+            with open(filename, "w") as a:
+                a.write(sequence)
+                a.close()
+            return filename
+
+        if 'assembly_input_ref' in params:
             assembly_input_ref = params['assembly_input_ref']
-            assemblyUtil = AssemblyUtil(self.callback_url)
-            fasta_file = assemblyUtil.get_assembly_as_fasta({'ref': assembly_input_ref})
-            return self.saveFileToScratch(fasta_file['path'])
-        else:
             pass
+
+        raise ValueError('No genetic sequence string or reference file was provided')
+
 
 
         #Object Input
@@ -84,9 +90,11 @@ class kb_diamond:
 
     def generate_report(self, output_file, workspace_name):
         """
-        _generate_report: generate summary report
+        
+        :param output_file: 
+        :param workspace_name: 
+        :return: 
         """
-
         output_files = []
 
         output_files.append({'path': output_file,
@@ -172,38 +180,22 @@ class kb_diamond:
 
         #BEGIN Diamond_Blastp_Search
         workspace_name = params['workspace_name']
-        if params['assembly_input_ref']:
-            assembly_input_ref = params['assembly_input_ref']
-        if params['input_one_sequence']:
-            fasta_content = params['input_one_sequence']
 
+        query_fasta_filepath = self.get_fasta_filepath(params)
+        subject_fasta_filepath = self.get_fasta_filepath(params)
 
-            assembly_ref = self.load_fasta_file(os.path.join(self.shared_folder, 'test1.fasta'),
-                                                'TestAssembly',
-                                                fasta_content)
-            params = {'workspace_name': workspace_name,
-                      'assembly_input_ref': assembly_ref,
-                      'min_length': 10
-                      }
-
-
-
-        #process_inputs
-
-        query_fasta_filepath = self.get_query_filepath(params)
-        subject_database_filepath = self.get_query_filepath(params)
-
-        print("About to create database at "  + subject_database_filepath)
-        kb_diamond_blast.makedb(subject_database_filepath)
-
-        print(kb_diamond_blast.dbinfo(subject_database_filepath))
+        blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
+                            "subject_fasta_filepath": subject_fasta_filepath,
+                            "blast_type": 'blastp'}
 
         print("About to blast")
-        blast_parameters = {'query_filepath' :query_fasta_filepath,
-                            "databases" : [subject_database_filepath],
-                            "blast_type" : 'blastp'}
-        blast_results = kb_diamond_blast.blast(blast_parameters)
 
+        blast_result = kb_diamond_blast.blast(blast_parameters)
+
+        #blast_output = namedtuple("blast_output", "result output_filename search_parameters")
+        return self.generate_report(blast_result.output_filename, workspace_name)
+
+        
         # blast_output = namedtuple("blast_output", "result output_filename search_parameters")
         report = []
         # for result in blast_results:
