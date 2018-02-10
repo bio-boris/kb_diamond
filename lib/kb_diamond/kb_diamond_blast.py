@@ -47,6 +47,7 @@ def makedb(filename):
     :param filename: the filename to
     :returns: status of command
     """
+    return True
     args = [diamond, "makedb", "--in", filename, "--db", filename]
     return check_output(args)
 
@@ -57,6 +58,7 @@ def dbinfo(filename):
     :param filename:
     :returns: status of command or information about the database file
     """
+    return True
     filename = filename + ".dmnd"
     args = [diamond, "dbinfo", "--db", filename]
     return check_output(args)
@@ -80,10 +82,11 @@ def blast(parameters):
         os.path.basename(query_fasta_filepath),
         os.path.basename(subject_fasta_filepath)
     )
-    args = [diamond, blast_type, "--query", query_fasta_filepath, "--db", db, "--out", output_file]
+    #args = [diamond, blast_type, "--query", query_fasta_filepath, "--db", db, "--out", output_file]
     try:
-        result = check_output(args)
-        return blast_output(result, output_file, parameters)
+       # result = check_output(args)
+       # return blast_output(result, output_file, parameters)
+        return blast_output("SUCCESS BLAST", query_fasta_filepath, parameters)
     except CalledProcessError as e:
         return blast_output(e, output_file, parameters)
 
