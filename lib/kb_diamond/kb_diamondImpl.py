@@ -108,11 +108,11 @@ class kb_diamond:
 
         report_params = {'message': 'Hello message',
                          'workspace_name': workspace_name,
-                         'objects_created': objects_created,
-                         'file_links': output_files,
-                         'html_links': output_html_files,
-                         'direct_html_link_index': 0,
-                         'html_window_height': 333,
+                         # 'objects_created': objects_created,
+                         # 'file_links': output_files,
+                         # 'html_links': output_html_files,
+                         # 'direct_html_link_index': 0,
+                         # 'html_window_height': 333,
                          'report_object_name': 'kb_deseq2_report_' + str(uuid.uuid4())}
 
         kbase_report_client = KBaseReport(self.callback_url)
@@ -231,11 +231,11 @@ class kb_diamond:
 
         report_params = {'message': 'This is a report',
                          'workspace_name': params.get('workspace_name'),
-
-                         'file_links': output_result,
-                         'html_links': html_report,
-                         'direct_html_link_index': 0,
-                         'html_window_height': 333,
+                         #
+                         # 'file_links': output_result,
+                         # 'html_links': html_report,
+                         # 'direct_html_link_index': 0,
+                         # 'html_window_height': 333,
                          'report_object_name': 'kb_diamond_report_' + str(uuid.uuid4())}
 
         kbase_report_client = KBaseReport(self.callback_url)
