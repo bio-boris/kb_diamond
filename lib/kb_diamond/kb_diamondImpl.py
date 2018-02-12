@@ -159,7 +159,8 @@ class kb_diamond:
         with open(html_file,'w') as f:
             contents = "<html><body>Hello</body></html>"
             f.write(contents)
-        report_shock_id = self.dfu.file_to_shock({'file_path': html_file})['shock_id']
+        report_shock_id = self.dfu.file_to_shock({'file_path': html_file,
+                                                  'pack': 'zip'})['shock_id']
 
         html_report = [{'shock_id': report_shock_id,
                             'name': os.path.basename(html_file),
