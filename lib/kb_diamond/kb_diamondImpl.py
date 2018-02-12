@@ -53,43 +53,6 @@ class kb_diamond:
     blast_output = namedtuple("blast_output", "result output_filename search_parameters")
 
 
-    def save_sequence(self,ctx,params):
-        DOTFU = KBaseDataObjectToFileUtils(url=self.callbackURL, token=ctx['token'])
-        ParseFastaStr_retVal = DOTFU.ParseFastaStr({
-            'fasta_str': params['input_one_sequence'],
-            'residue_type': params['sequence_type'],
-            'case': 'UPPER',
-            'console': [],
-            'invalid_msgs': []
-        })
-        header_id = ParseFastaStr_retVal['id']
-        header_desc = ParseFastaStr_retVal['desc']
-        sequence_str_buf = ParseFastaStr_retVal['seq']
-
-        output_one_sequenceSet = {'sequence_set_id': header_id,
-                                  'description': header_desc,
-                                  'sequences': [{'sequence_id': header_id,
-                                                 'description': header_desc,
-                                                 'sequence': sequence_str_buf
-                                                 }
-                                                ]
-                                  }
-
-        try:
-            ws = workspaceService(self.workspaceURL, token=ctx['token'])
-            new_obj_info = ws.save_objects({
-                'workspace': params['workspace_name'],
-                'objects': [{
-                    'type': 'KBaseSequences.SequenceSet',
-                    'data': output_one_sequenceSet,
-                    'name': params['output_one_name'],
-                    'meta': {},
-                }]
-            })[0]
-            output_one_ref = str(new_obj_info[6]) + '/' + str(new_obj_info[0]) + '/' + str(new_obj_info[4])
-        except Exception as e:
-            raise ValueError('Unable to store output_one_name SequenceSet object from workspace: ' + str(e))
-        return output_one_ref
 
     def get_fasta_filepath(self,params):
         if 'input_one_sequence' in params:
@@ -182,12 +145,13 @@ class kb_diamond:
         self.shared_folder = config['scratch']
         self.workspaceURL = config['workspace-url']
         self.dfu = DataFileUtil(self.callback_url)
-        self.token = config['KB_AUTH_TOKEN']
+
         self.shock_url = config['shock-url']
         self.dfu = DataFileUtil(self.callback_url)
-        self.ws = Workspace(self.ws_url, token=self.token)
+
+
         self.scratch = config['scratch']
-        # END_CONSTRUCTOR
+        #END_CONSTRUCTOR
 
 
 
@@ -221,6 +185,7 @@ class kb_diamond:
 
         #BEGIN Diamond_Blastp_Search
         workspace_name = params['workspace_name']
+        self.ws = Workspace(self.workspaceURL, token=ctx['token'])
 
         query_fasta_filepath = self.get_fasta_filepath(params)
         subject_fasta_filepath = self.get_fasta_filepath(params)
@@ -232,6 +197,47 @@ class kb_diamond:
         print("About to blast")
 
         blast_result = kb_diamond_blast.blast(blast_parameters)
+
+        #Blast File
+        output_filepath = blast_result.output_filename
+        output_file_shock_id = self.dfu.file_to_shock({'file_path': output_filepath})['shock_id']
+
+        output_result = {'path': output_filepath,
+                             'name': os.path.basename(output_filepath),
+                             'label': os.path.basename(output_filepath),
+                             'description': 'File(s) generated '}
+
+        #HTML File
+        html_file = os.path.join(self.shared_folder, 'output.html')
+        with open(html_file,'w') as f:
+            contents = "<html><body>Hello</body></html>"
+            f.write(contents)
+        report_shock_id = self.dfu.file_to_shock({'file_path': html_file})['shock_id']
+
+        html_report = {'shock_id': report_shock_id,
+                            'name': os.path.basename(html_file),
+                            'label': os.path.basename(html_file),
+                            'description': 'HTML summary '}
+
+
+
+        report_params = {'message': '',
+                         'workspace_name': params.get('workspace_name'),
+                         'objects_created': [],
+                         'file_links': output_result,
+                         'html_links': html_report,
+                         'direct_html_link_index': 0,
+                         'html_window_height': 333,
+                         'report_object_name': 'kb_deseq2_report_' + str(uuid.uuid4())}
+
+        kbase_report_client = KBaseReport(self.callback_url)
+        output = kbase_report_client.create_extended_report(report_params)
+
+        report_output = {'report_name': output['name'], 'report_ref': output['ref']}
+
+        return report_output
+
+
 
         #blast_output = namedtuple("blast_output", "result output_filename search_parameters")
         return self.generate_report(blast_result.output_filename, workspace_name)
