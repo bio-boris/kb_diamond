@@ -196,16 +196,20 @@ class kb_diamond:
 
         print("About to blast")
 
-        blast_result = kb_diamond_blast.blast(blast_parameters)
+        #blast_result = kb_diamond_blast.blast(blast_parameters)
+        #output_filepath = blast_result.output_filename
 
         #Blast File
-        output_filepath = blast_result.output_filename
-        output_file_shock_id = self.dfu.file_to_shock({'file_path': output_filepath})['shock_id']
+        blast = os.path.join(self.shared_folder, 'output.blast')
+        with open(blast,'w') as f:
+            contents = "I am a blast"
+            f.write(contents)
+        output_file_shock_id = self.dfu.file_to_shock({'file_path': blast})['shock_id']
 
-        output_result = {'path': output_filepath,
-                             'name': os.path.basename(output_filepath),
-                             'label': os.path.basename(output_filepath),
-                             'description': 'File(s) generated '}
+        output_result = [{'path': blast,
+                             'name': os.path.basename(blast),
+                             'label': os.path.basename(blast),
+                             'description': 'File(s) generated '}]
 
         #HTML File
         html_file = os.path.join(self.shared_folder, 'output.html')
@@ -214,10 +218,10 @@ class kb_diamond:
             f.write(contents)
         report_shock_id = self.dfu.file_to_shock({'file_path': html_file})['shock_id']
 
-        html_report = {'shock_id': report_shock_id,
+        html_report = [{'shock_id': report_shock_id,
                             'name': os.path.basename(html_file),
                             'label': os.path.basename(html_file),
-                            'description': 'HTML summary '}
+                            'description': 'HTML summary '}]
 
 
 
@@ -228,7 +232,7 @@ class kb_diamond:
                          'html_links': html_report,
                          'direct_html_link_index': 0,
                          'html_window_height': 333,
-                         'report_object_name': 'kb_deseq2_report_' + str(uuid.uuid4())}
+                         'report_object_name': 'kb_diamond_report_' + str(uuid.uuid4())}
 
         kbase_report_client = KBaseReport(self.callback_url)
         output = kbase_report_client.create_extended_report(report_params)
