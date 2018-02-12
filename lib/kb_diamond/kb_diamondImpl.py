@@ -186,7 +186,7 @@ class kb_diamond:
 
         report_output = {'report_name': output['name'], 'report_ref': output['ref']}
 
-        return report_output
+        return [report_output]
 
 
 
@@ -229,6 +229,7 @@ class kb_diamond:
                   'blast_results': blast_results
                   }
         print('returning:' + pformat(output))
+
 
 
 
