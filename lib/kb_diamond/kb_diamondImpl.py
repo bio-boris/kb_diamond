@@ -229,10 +229,8 @@ class kb_diamond:
 
 
 
-        report_params = {'message': '',
+        report_params = {'message': 'This is a report',
                          'workspace_name': params.get('workspace_name'),
-                         'objects_created': [],
-                         'file_links': output_result,
                          'html_links': html_report,
                          'direct_html_link_index': 0,
                          'html_window_height': 333,
