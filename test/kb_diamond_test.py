@@ -100,7 +100,8 @@ class kb_diamondTest(unittest.TestCase):
 
         params = {'workspace_name': self.getWsName(),
                   'input_one_sequence': fasta_content,
-                  'scratch' : self.scratch
+                  'scratch' : self.scratch,
+                  'context' : self.ctx
                   }
         # Second, call your implementation
         output = self.getImpl().Diamond_Blastp_Search(self.ctx, params)

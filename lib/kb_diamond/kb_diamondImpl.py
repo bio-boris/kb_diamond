@@ -12,12 +12,13 @@ except:
     from configparser import ConfigParser  # py3
 
 # SDK Utils
-from biokbase.workspace.client import Workspace as workspaceService
+# from biokbase.workspace.client import Workspace as workspaceService
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 import kb_diamond_blast
 from KBaseReport.KBaseReportClient import KBaseReport
 from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
-from DataFileUtil.DataFileUtilClient import DataFileUtil as DFUClient
+from DataFileUtil.DataFileUtilClient import DataFileUtil
+from Workspace.WorkspaceClient import Workspace as Workspace
 
 
 
@@ -180,7 +181,13 @@ class kb_diamond:
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = config['scratch']
         self.workspaceURL = config['workspace-url']
-        #END_CONSTRUCTOR
+        self.dfu = DataFileUtil(self.callback_url)
+        self.token = config['KB_AUTH_TOKEN']
+        self.shock_url = config['shock-url']
+        self.dfu = DataFileUtil(self.callback_url)
+        self.ws = Workspace(self.ws_url, token=self.token)
+        self.scratch = config['scratch']
+        # END_CONSTRUCTOR
 
 
 
