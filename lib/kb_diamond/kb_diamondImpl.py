@@ -184,48 +184,48 @@ class kb_diamond:
         # return variables are: output
 
         #BEGIN Diamond_Blastp_Search
-        workspace_name = params['workspace_name']
-        self.ws = Workspace(self.workspaceURL, token=ctx['token'])
-
-        query_fasta_filepath = self.get_fasta_filepath(params)
-        subject_fasta_filepath = self.get_fasta_filepath(params)
-
-        blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
-                            "subject_fasta_filepath": subject_fasta_filepath,
-                            "blast_type": 'blastp'}
-
-        print("About to blast")
-
-        #blast_result = kb_diamond_blast.blast(blast_parameters)
-        #output_filepath = blast_result.output_filename
-
-        #Blast File
-        blast = os.path.join(self.shared_folder, 'output.blast')
-        with open(blast,'w') as f:
-            contents = "I am a blast"
-            f.write(contents)
-        output_file_shock_id = self.dfu.file_to_shock({'file_path': blast})['shock_id']
-
-        output_result = [{'path': blast,
-                             'name': os.path.basename(blast),
-                             'label': os.path.basename(blast),
-                             'description': 'File(s) generated '}]
-
-        #HTML File
-        html_file = os.path.join(self.shared_folder, 'output.html')
-        with open(html_file,'w') as f:
-            contents = "<html><body>Hello</body></html>"
-            f.write(contents)
-        report_shock_id = self.dfu.file_to_shock({'file_path': html_file})['shock_id']
-
-        html_report = [{'shock_id': report_shock_id,
-                            'name': os.path.basename(html_file),
-                            'label': os.path.basename(html_file),
-                            'description': 'HTML summary '}]
-
-        objects_created = []
-        objects_created.append({'ref': output_file_shock_id,
-                                'description': "blast uploaded to shock"})
+        # workspace_name = params['workspace_name']
+        # self.ws = Workspace(self.workspaceURL, token=ctx['token'])
+        #
+        # query_fasta_filepath = self.get_fasta_filepath(params)
+        # subject_fasta_filepath = self.get_fasta_filepath(params)
+        #
+        # blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
+        #                     "subject_fasta_filepath": subject_fasta_filepath,
+        #                     "blast_type": 'blastp'}
+        #
+        # print("About to blast")
+        #
+        # #blast_result = kb_diamond_blast.blast(blast_parameters)
+        # #output_filepath = blast_result.output_filename
+        #
+        # #Blast File
+        # blast = os.path.join(self.shared_folder, 'output.blast')
+        # with open(blast,'w') as f:
+        #     contents = "I am a blast"
+        #     f.write(contents)
+        # output_file_shock_id = self.dfu.file_to_shock({'file_path': blast})['shock_id']
+        #
+        # output_result = [{'path': blast,
+        #                      'name': os.path.basename(blast),
+        #                      'label': os.path.basename(blast),
+        #                      'description': 'File(s) generated '}]
+        #
+        # #HTML File
+        # html_file = os.path.join(self.shared_folder, 'output.html')
+        # with open(html_file,'w') as f:
+        #     contents = "<html><body>Hello</body></html>"
+        #     f.write(contents)
+        # report_shock_id = self.dfu.file_to_shock({'file_path': html_file})['shock_id']
+        #
+        # html_report = [{'shock_id': report_shock_id,
+        #                     'name': os.path.basename(html_file),
+        #                     'label': os.path.basename(html_file),
+        #                     'description': 'HTML summary '}]
+        #
+        # objects_created = []
+        # objects_created.append({'ref': output_file_shock_id,
+        #                         'description': "blast uploaded to shock"})
 
 
 
