@@ -78,6 +78,21 @@ class kb_diamond:
         return i + 1
 
 
+    def upload_to_shock(self,**upload_arguments):
+        file_path = upload_arguments['file_path']
+        zipped = upload_arguments['zipped']
+        dfu_arguments = {'file_path': file_path}
+        if (zipped in upload_arguments and zipped == True):
+            dfu_arguments['pack'] = 'zip'
+        return self.dfu.file_to_shock(dfu_arguments)['shock_id']
+
+
+    def upload_html_report_to_shock(self,filepath):
+        return self.upload_to_shock(filepath,zipped=True)
+
+
+
+
     #END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn"t
@@ -147,12 +162,17 @@ class kb_diamond:
         with open(blast,'w') as f:
             contents = "I am a blast"
             f.write(contents)
-        output_file_shock_id = self.dfu.file_to_shock({'file_path': blast})['shock_id']
+
+        output_file_shock_id = self.upload_to_shock(blast)
 
         output_result = [{'path': blast,
                              'name': os.path.basename(blast),
                              'label': os.path.basename(blast),
                              'description': 'File(s) generated '}]
+
+        objects_created = []
+        objects_created.append({'ref': output_file_shock_id,
+                                'description': "blast file not uploaded to shock"})
 
         #HTML File
         html_file = os.path.join(self.shared_folder, 'output.html')
@@ -167,9 +187,7 @@ class kb_diamond:
                             'label': os.path.basename(html_file),
                             'description': 'HTML summary '}]
 
-        objects_created = []
-        objects_created.append({'ref': output_file_shock_id,
-                                'description': "blast uploaded to shock"})
+
 
 
 
