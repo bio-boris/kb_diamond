@@ -13,16 +13,12 @@ except:
 
 # SDK Utils
 from biokbase.workspace.client import Workspace as workspaceService
-# from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
-# from DataFileUtil.DataFileUtilClient import DataFileUtil as DFUClient
-# from KBaseReport.KBaseReportClient import KBaseReport
-# from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
-# from kb_diamond.kb_diamondServer import MethodContext
-# from kb_diamond.kb_diamondImpl import kb_diamond
-# from kb_diamond.authclient import KBaseAuth as _KBaseAuth
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 import kb_diamond_blast
 from KBaseReport.KBaseReportClient import KBaseReport
+from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
+from DataFileUtil.DataFileUtilClient import DataFileUtil as DFUClient
+
 
 
 #END_HEADER
@@ -55,6 +51,44 @@ class kb_diamond:
     database_stats = namedtuple("database_stats", "makedb_output dbinfo_output")
     blast_output = namedtuple("blast_output", "result output_filename search_parameters")
 
+
+    def save_sequence(self,ctx,params):
+        DOTFU = KBaseDataObjectToFileUtils(url=self.callbackURL, token=ctx['token'])
+        ParseFastaStr_retVal = DOTFU.ParseFastaStr({
+            'fasta_str': params['input_one_sequence'],
+            'residue_type': params['sequence_type'],
+            'case': 'UPPER',
+            'console': [],
+            'invalid_msgs': []
+        })
+        header_id = ParseFastaStr_retVal['id']
+        header_desc = ParseFastaStr_retVal['desc']
+        sequence_str_buf = ParseFastaStr_retVal['seq']
+
+        output_one_sequenceSet = {'sequence_set_id': header_id,
+                                  'description': header_desc,
+                                  'sequences': [{'sequence_id': header_id,
+                                                 'description': header_desc,
+                                                 'sequence': sequence_str_buf
+                                                 }
+                                                ]
+                                  }
+
+        try:
+            ws = workspaceService(self.workspaceURL, token=ctx['token'])
+            new_obj_info = ws.save_objects({
+                'workspace': params['workspace_name'],
+                'objects': [{
+                    'type': 'KBaseSequences.SequenceSet',
+                    'data': output_one_sequenceSet,
+                    'name': params['output_one_name'],
+                    'meta': {},
+                }]
+            })[0]
+            output_one_ref = str(new_obj_info[6]) + '/' + str(new_obj_info[0]) + '/' + str(new_obj_info[4])
+        except Exception as e:
+            raise ValueError('Unable to store output_one_name SequenceSet object from workspace: ' + str(e))
+        return output_one_ref
 
     def get_fasta_filepath(self,params):
         if 'input_one_sequence' in params:

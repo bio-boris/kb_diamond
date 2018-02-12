@@ -23,6 +23,13 @@ if not os.path.isfile(diamond):
     diamond = "diamond"
 
 
+
+
+
+
+
+
+
 # TODO Support <STDIN> sequence collections
 # TODO Error Handling
 def makedbs(filenames):
