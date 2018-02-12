@@ -71,68 +71,11 @@ class kb_diamond:
 
 
 
-        #Object Input
-
-    def saveFileToScratch(self,file_path):
-        output_path = os.path.join(self.shared_folder, file_path)
-        print("Saving to " + output_path)
-        os.rename(file_path, output_path)
-        return output_path
-
-
     def file_len(self,fname):
         with open(fname) as f:
             for i, l in enumerate(f):
                 pass
         return i + 1
-
-    def generate_report(self, output_file, workspace_name):
-        """
-        
-        :param output_file: 
-        :param workspace_name: 
-        :return: 
-        """
-        output_files = []
-
-        output_files.append({'path': output_file,
-                             'name': os.path.basename(output_file),
-                             'label': os.path.basename(output_file),
-                             'description': 'Blast Output'})
-
-        output_html_files = output_files
-
-
-        objects_created = output_files
-
-
-        report_params = {'message': 'Hello message',
-                         'workspace_name': workspace_name,
-                         # 'objects_created': objects_created,
-                         # 'file_links': output_files,
-                         # 'html_links': output_html_files,
-                         # 'direct_html_link_index': 0,
-                         # 'html_window_height': 333,
-                         'report_object_name': 'kb_deseq2_report_' + str(uuid.uuid4())}
-
-        kbase_report_client = KBaseReport(self.callback_url)
-        output = kbase_report_client.create_extended_report(report_params)
-
-        report_output = {'report_name': output['name'], 'report_ref': output['ref']}
-
-        return report_output
-
-
-    def load_fasta_file(self, filename, obj_name, contents):
-        f = open(filename, 'w')
-        f.write(contents)
-        f.close()
-        assemblyUtil = AssemblyUtil(self.callback_url)
-        assembly_ref = assemblyUtil.save_assembly_from_fasta({'file': {'path': filename},
-                                                              'workspace_name': self.getWsName(),
-                                                              'assembly_name': obj_name
-                                                              })
-        return assembly_ref
 
 
     #END_CLASS_HEADER
