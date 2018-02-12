@@ -223,6 +223,10 @@ class kb_diamond:
                             'label': os.path.basename(html_file),
                             'description': 'HTML summary '}]
 
+        objects_created = []
+        objects_created.append({'ref': output_file_shock_id,
+                                'description': "blast uploaded to shock"})
+
 
 
         report_params = {'message': '',
@@ -244,7 +248,7 @@ class kb_diamond:
 
 
         #blast_output = namedtuple("blast_output", "result output_filename search_parameters")
-        return self.generate_report(blast_result.output_filename, workspace_name)
+        #return self.generate_report(blast_result.output_filename, workspace_name)
 
 
         # blast_output = namedtuple("blast_output", "result output_filename search_parameters")
