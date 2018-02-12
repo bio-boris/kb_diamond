@@ -102,13 +102,13 @@ class kb_diamond:
                              'label': os.path.basename(output_file),
                              'description': 'Blast Output'})
 
-        output_html_files = []
+        output_html_files = output_files
 
 
-        objects_created = []
+        objects_created = output_files
 
 
-        report_params = {'message': '',
+        report_params = {'message': 'Hello message',
                          'workspace_name': workspace_name,
                          'objects_created': objects_created,
                          'file_links': output_files,

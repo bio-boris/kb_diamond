@@ -168,7 +168,7 @@
     "service-mapping": {
       "url": "",
       "name": "kb_diamond",
-      "method": "Diamond_Blastx_Search",
+      "method": "Diamond_Blastp_Search",
       "input_mapping": [
         {
           "narrative_system_variable": "workspace",
