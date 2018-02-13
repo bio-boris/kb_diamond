@@ -157,15 +157,14 @@ class kb_diamond:
 
     def upload_to_shock(self,**upload_arguments):
         file_path = upload_arguments['file_path']
-        zipped = upload_arguments['zipped']
         dfu_arguments = {'file_path': file_path}
-        if (zipped in upload_arguments and zipped == True):
+        if ('zipped' in upload_arguments and zipped == True):
             dfu_arguments['pack'] = 'zip'
         return self.dfu.file_to_shock(dfu_arguments)['shock_id']
 
 
     def upload_html_report_to_shock(self,filepath):
-        return self.upload_to_shock(filepath,zipped=True)
+        return self.upload_to_shock(file_path = filepath,zipped=True)
 
 
 
@@ -252,7 +251,8 @@ class kb_diamond:
 
 
         #Output Files for Report
-        output_file_shock_id = self.upload_to_shock(blast)
+        output_file_shock_id = self.dfu.file_to_shock({'file_path': blast})['shock_id']
+
         output_results = list()
         output_results.append({'path': blast,
                                  'name': os.path.basename(blast),
@@ -272,7 +272,7 @@ class kb_diamond:
 
 
         #HTML Files for Report
-        report_shock_id = self.upload_html_report_to_shock()
+        report_shock_id = self.dfu.file_to_shock({'file_path': blast, 'pack': 'zip'})['shock_id']
         html_report = [{'shock_id': report_shock_id,
                             'name': os.path.basename(html_file),
                             'label': os.path.basename(html_file),
