@@ -87,8 +87,7 @@ class kb_diamondTest(unittest.TestCase):
                                                               })
         return assembly_ref
 
-    def test_input_sequence(self):
-
+    def Xtest_input_sequence(self):
         # First load a test FASTA file as an KBase Assembly
         fasta_content = '>seq1 something soemthing asdf\n' \
                         'agcttttcat\n' \
@@ -102,6 +101,18 @@ class kb_diamondTest(unittest.TestCase):
                   'input_one_sequence': fasta_content,
                   'scratch' : self.scratch,
                   'context' : self.ctx
+                  }
+        # Second, call your implementation
+        output = self.getImpl().Diamond_Blastp_Search(self.ctx, params)
+        pprint(output)
+
+        self.assertEquals(1, 1)
+
+    def test_input_ref(self):
+        params = {'workspace_name': self.getWsName(),
+                  'input_object_ref': '12588/9/1',
+                  'scratch': self.scratch,
+                  'context': self.ctx
                   }
         # Second, call your implementation
         output = self.getImpl().Diamond_Blastp_Search(self.ctx, params)

@@ -123,11 +123,11 @@ $params is a kb_diamond.Diamond_Params
 $output is a kb_diamond.Diamond_Output
 Diamond_Params is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a kb_diamond.workspace_name
-	input_one_sequence has a value which is a kb_diamond.sequence
-	input_one_ref has a value which is a kb_diamond.data_obj_ref
-	input_many_ref has a value which is a kb_diamond.data_obj_ref
-	output_one_name has a value which is a kb_diamond.data_obj_name
-	output_filtered_name has a value which is a kb_diamond.data_obj_name
+	input_query_string has a value which is a string
+	input_object_ref has a value which is a kb_diamond.data_obj_ref
+	target_object_ref has a value which is a kb_diamond.data_obj_ref
+	output_sequence_set_name has a value which is a kb_diamond.data_obj_name
+	output_feature_set_name has a value which is a kb_diamond.data_obj_name
 	ident_thresh has a value which is a float
 	e_value has a value which is a float
 	bitscore has a value which is a float
@@ -135,7 +135,6 @@ Diamond_Params is a reference to a hash where the following keys are defined:
 	maxaccepts has a value which is a float
 	output_extra_format has a value which is a string
 workspace_name is a string
-sequence is a string
 data_obj_ref is a string
 data_obj_name is a string
 Diamond_Output is a reference to a hash where the following keys are defined:
@@ -152,11 +151,11 @@ $params is a kb_diamond.Diamond_Params
 $output is a kb_diamond.Diamond_Output
 Diamond_Params is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a kb_diamond.workspace_name
-	input_one_sequence has a value which is a kb_diamond.sequence
-	input_one_ref has a value which is a kb_diamond.data_obj_ref
-	input_many_ref has a value which is a kb_diamond.data_obj_ref
-	output_one_name has a value which is a kb_diamond.data_obj_name
-	output_filtered_name has a value which is a kb_diamond.data_obj_name
+	input_query_string has a value which is a string
+	input_object_ref has a value which is a kb_diamond.data_obj_ref
+	target_object_ref has a value which is a kb_diamond.data_obj_ref
+	output_sequence_set_name has a value which is a kb_diamond.data_obj_name
+	output_feature_set_name has a value which is a kb_diamond.data_obj_name
 	ident_thresh has a value which is a float
 	e_value has a value which is a float
 	bitscore has a value which is a float
@@ -164,7 +163,6 @@ Diamond_Params is a reference to a hash where the following keys are defined:
 	maxaccepts has a value which is a float
 	output_extra_format has a value which is a string
 workspace_name is a string
-sequence is a string
 data_obj_ref is a string
 data_obj_name is a string
 Diamond_Output is a reference to a hash where the following keys are defined:
@@ -245,11 +243,11 @@ $params is a kb_diamond.Diamond_Params
 $output is a kb_diamond.Diamond_Output
 Diamond_Params is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a kb_diamond.workspace_name
-	input_one_sequence has a value which is a kb_diamond.sequence
-	input_one_ref has a value which is a kb_diamond.data_obj_ref
-	input_many_ref has a value which is a kb_diamond.data_obj_ref
-	output_one_name has a value which is a kb_diamond.data_obj_name
-	output_filtered_name has a value which is a kb_diamond.data_obj_name
+	input_query_string has a value which is a string
+	input_object_ref has a value which is a kb_diamond.data_obj_ref
+	target_object_ref has a value which is a kb_diamond.data_obj_ref
+	output_sequence_set_name has a value which is a kb_diamond.data_obj_name
+	output_feature_set_name has a value which is a kb_diamond.data_obj_name
 	ident_thresh has a value which is a float
 	e_value has a value which is a float
 	bitscore has a value which is a float
@@ -257,7 +255,6 @@ Diamond_Params is a reference to a hash where the following keys are defined:
 	maxaccepts has a value which is a float
 	output_extra_format has a value which is a string
 workspace_name is a string
-sequence is a string
 data_obj_ref is a string
 data_obj_name is a string
 Diamond_Output is a reference to a hash where the following keys are defined:
@@ -274,11 +271,11 @@ $params is a kb_diamond.Diamond_Params
 $output is a kb_diamond.Diamond_Output
 Diamond_Params is a reference to a hash where the following keys are defined:
 	workspace_name has a value which is a kb_diamond.workspace_name
-	input_one_sequence has a value which is a kb_diamond.sequence
-	input_one_ref has a value which is a kb_diamond.data_obj_ref
-	input_many_ref has a value which is a kb_diamond.data_obj_ref
-	output_one_name has a value which is a kb_diamond.data_obj_name
-	output_filtered_name has a value which is a kb_diamond.data_obj_name
+	input_query_string has a value which is a string
+	input_object_ref has a value which is a kb_diamond.data_obj_ref
+	target_object_ref has a value which is a kb_diamond.data_obj_ref
+	output_sequence_set_name has a value which is a kb_diamond.data_obj_name
+	output_feature_set_name has a value which is a kb_diamond.data_obj_name
 	ident_thresh has a value which is a float
 	e_value has a value which is a float
 	bitscore has a value which is a float
@@ -286,7 +283,6 @@ Diamond_Params is a reference to a hash where the following keys are defined:
 	maxaccepts has a value which is a float
 	output_extra_format has a value which is a string
 workspace_name is a string
-sequence is a string
 data_obj_ref is a string
 data_obj_name is a string
 Diamond_Output is a reference to a hash where the following keys are defined:
@@ -572,11 +568,11 @@ Diamond Input Params
 <pre>
 a reference to a hash where the following keys are defined:
 workspace_name has a value which is a kb_diamond.workspace_name
-input_one_sequence has a value which is a kb_diamond.sequence
-input_one_ref has a value which is a kb_diamond.data_obj_ref
-input_many_ref has a value which is a kb_diamond.data_obj_ref
-output_one_name has a value which is a kb_diamond.data_obj_name
-output_filtered_name has a value which is a kb_diamond.data_obj_name
+input_query_string has a value which is a string
+input_object_ref has a value which is a kb_diamond.data_obj_ref
+target_object_ref has a value which is a kb_diamond.data_obj_ref
+output_sequence_set_name has a value which is a kb_diamond.data_obj_name
+output_feature_set_name has a value which is a kb_diamond.data_obj_name
 ident_thresh has a value which is a float
 e_value has a value which is a float
 bitscore has a value which is a float
@@ -592,11 +588,11 @@ output_extra_format has a value which is a string
 
 a reference to a hash where the following keys are defined:
 workspace_name has a value which is a kb_diamond.workspace_name
-input_one_sequence has a value which is a kb_diamond.sequence
-input_one_ref has a value which is a kb_diamond.data_obj_ref
-input_many_ref has a value which is a kb_diamond.data_obj_ref
-output_one_name has a value which is a kb_diamond.data_obj_name
-output_filtered_name has a value which is a kb_diamond.data_obj_name
+input_query_string has a value which is a string
+input_object_ref has a value which is a kb_diamond.data_obj_ref
+target_object_ref has a value which is a kb_diamond.data_obj_ref
+output_sequence_set_name has a value which is a kb_diamond.data_obj_name
+output_feature_set_name has a value which is a kb_diamond.data_obj_name
 ident_thresh has a value which is a float
 e_value has a value which is a float
 bitscore has a value which is a float

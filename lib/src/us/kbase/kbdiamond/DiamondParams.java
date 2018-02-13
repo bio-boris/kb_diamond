@@ -22,11 +22,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "workspace_name",
-    "input_one_sequence",
-    "input_one_ref",
-    "input_many_ref",
-    "output_one_name",
-    "output_filtered_name",
+    "input_query_string",
+    "input_object_ref",
+    "target_object_ref",
+    "output_sequence_set_name",
+    "output_feature_set_name",
     "ident_thresh",
     "e_value",
     "bitscore",
@@ -38,16 +38,16 @@ public class DiamondParams {
 
     @JsonProperty("workspace_name")
     private String workspaceName;
-    @JsonProperty("input_one_sequence")
-    private String inputOneSequence;
-    @JsonProperty("input_one_ref")
-    private String inputOneRef;
-    @JsonProperty("input_many_ref")
-    private String inputManyRef;
-    @JsonProperty("output_one_name")
-    private String outputOneName;
-    @JsonProperty("output_filtered_name")
-    private String outputFilteredName;
+    @JsonProperty("input_query_string")
+    private String inputQueryString;
+    @JsonProperty("input_object_ref")
+    private String inputObjectRef;
+    @JsonProperty("target_object_ref")
+    private String targetObjectRef;
+    @JsonProperty("output_sequence_set_name")
+    private String outputSequenceSetName;
+    @JsonProperty("output_feature_set_name")
+    private String outputFeatureSetName;
     @JsonProperty("ident_thresh")
     private Double identThresh;
     @JsonProperty("e_value")
@@ -77,78 +77,78 @@ public class DiamondParams {
         return this;
     }
 
-    @JsonProperty("input_one_sequence")
-    public String getInputOneSequence() {
-        return inputOneSequence;
+    @JsonProperty("input_query_string")
+    public String getInputQueryString() {
+        return inputQueryString;
     }
 
-    @JsonProperty("input_one_sequence")
-    public void setInputOneSequence(String inputOneSequence) {
-        this.inputOneSequence = inputOneSequence;
+    @JsonProperty("input_query_string")
+    public void setInputQueryString(String inputQueryString) {
+        this.inputQueryString = inputQueryString;
     }
 
-    public DiamondParams withInputOneSequence(String inputOneSequence) {
-        this.inputOneSequence = inputOneSequence;
+    public DiamondParams withInputQueryString(String inputQueryString) {
+        this.inputQueryString = inputQueryString;
         return this;
     }
 
-    @JsonProperty("input_one_ref")
-    public String getInputOneRef() {
-        return inputOneRef;
+    @JsonProperty("input_object_ref")
+    public String getInputObjectRef() {
+        return inputObjectRef;
     }
 
-    @JsonProperty("input_one_ref")
-    public void setInputOneRef(String inputOneRef) {
-        this.inputOneRef = inputOneRef;
+    @JsonProperty("input_object_ref")
+    public void setInputObjectRef(String inputObjectRef) {
+        this.inputObjectRef = inputObjectRef;
     }
 
-    public DiamondParams withInputOneRef(String inputOneRef) {
-        this.inputOneRef = inputOneRef;
+    public DiamondParams withInputObjectRef(String inputObjectRef) {
+        this.inputObjectRef = inputObjectRef;
         return this;
     }
 
-    @JsonProperty("input_many_ref")
-    public String getInputManyRef() {
-        return inputManyRef;
+    @JsonProperty("target_object_ref")
+    public String getTargetObjectRef() {
+        return targetObjectRef;
     }
 
-    @JsonProperty("input_many_ref")
-    public void setInputManyRef(String inputManyRef) {
-        this.inputManyRef = inputManyRef;
+    @JsonProperty("target_object_ref")
+    public void setTargetObjectRef(String targetObjectRef) {
+        this.targetObjectRef = targetObjectRef;
     }
 
-    public DiamondParams withInputManyRef(String inputManyRef) {
-        this.inputManyRef = inputManyRef;
+    public DiamondParams withTargetObjectRef(String targetObjectRef) {
+        this.targetObjectRef = targetObjectRef;
         return this;
     }
 
-    @JsonProperty("output_one_name")
-    public String getOutputOneName() {
-        return outputOneName;
+    @JsonProperty("output_sequence_set_name")
+    public String getOutputSequenceSetName() {
+        return outputSequenceSetName;
     }
 
-    @JsonProperty("output_one_name")
-    public void setOutputOneName(String outputOneName) {
-        this.outputOneName = outputOneName;
+    @JsonProperty("output_sequence_set_name")
+    public void setOutputSequenceSetName(String outputSequenceSetName) {
+        this.outputSequenceSetName = outputSequenceSetName;
     }
 
-    public DiamondParams withOutputOneName(String outputOneName) {
-        this.outputOneName = outputOneName;
+    public DiamondParams withOutputSequenceSetName(String outputSequenceSetName) {
+        this.outputSequenceSetName = outputSequenceSetName;
         return this;
     }
 
-    @JsonProperty("output_filtered_name")
-    public String getOutputFilteredName() {
-        return outputFilteredName;
+    @JsonProperty("output_feature_set_name")
+    public String getOutputFeatureSetName() {
+        return outputFeatureSetName;
     }
 
-    @JsonProperty("output_filtered_name")
-    public void setOutputFilteredName(String outputFilteredName) {
-        this.outputFilteredName = outputFilteredName;
+    @JsonProperty("output_feature_set_name")
+    public void setOutputFeatureSetName(String outputFeatureSetName) {
+        this.outputFeatureSetName = outputFeatureSetName;
     }
 
-    public DiamondParams withOutputFilteredName(String outputFilteredName) {
-        this.outputFilteredName = outputFilteredName;
+    public DiamondParams withOutputFeatureSetName(String outputFeatureSetName) {
+        this.outputFeatureSetName = outputFeatureSetName;
         return this;
     }
 
@@ -254,7 +254,7 @@ public class DiamondParams {
 
     @Override
     public String toString() {
-        return ((((((((((((((((((((((((((("DiamondParams"+" [workspaceName=")+ workspaceName)+", inputOneSequence=")+ inputOneSequence)+", inputOneRef=")+ inputOneRef)+", inputManyRef=")+ inputManyRef)+", outputOneName=")+ outputOneName)+", outputFilteredName=")+ outputFilteredName)+", identThresh=")+ identThresh)+", eValue=")+ eValue)+", bitscore=")+ bitscore)+", overlapFraction=")+ overlapFraction)+", maxaccepts=")+ maxaccepts)+", outputExtraFormat=")+ outputExtraFormat)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((("DiamondParams"+" [workspaceName=")+ workspaceName)+", inputQueryString=")+ inputQueryString)+", inputObjectRef=")+ inputObjectRef)+", targetObjectRef=")+ targetObjectRef)+", outputSequenceSetName=")+ outputSequenceSetName)+", outputFeatureSetName=")+ outputFeatureSetName)+", identThresh=")+ identThresh)+", eValue=")+ eValue)+", bitscore=")+ bitscore)+", overlapFraction=")+ overlapFraction)+", maxaccepts=")+ maxaccepts)+", outputExtraFormat=")+ outputExtraFormat)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

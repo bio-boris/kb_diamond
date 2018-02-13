@@ -8,13 +8,13 @@
     "active",
     "sequence"
   ],
-  "widgets": {
-    "input": null,
-    "output": null
+  "widgets" : {
+    "input" : "kbaseNarrativeMethodInput",
+    "output" : "no-display"
   },
   "parameters": [
     {
-      "id": "input_one_sequence",
+      "id": "input_query_string",
       "optional": true,
       "advanced": false,
       "allow_multiple": false,
@@ -27,7 +27,7 @@
       }
     },
     {
-      "id": "input_one_ref",
+      "id": "input_object_ref",
       "optional": true,
       "advanced": false,
       "allow_multiple": false,
@@ -43,7 +43,7 @@
       }
     },
     {
-      "id": "output_one_name",
+      "id": "output_sequence_set_name",
       "optional": true,
       "advanced": false,
       "allow_multiple": false,
@@ -59,7 +59,7 @@
       }
     },
     {
-      "id": "input_many_ref",
+      "id": "target_object_ref",
       "optional": false,
       "advanced": false,
       "allow_multiple": false,
@@ -76,7 +76,7 @@
       }
     },
     {
-      "id": "output_filtered_name",
+      "id": "output_feature_set_name",
       "optional": false,
       "advanced": false,
       "allow_multiple": false,
@@ -168,33 +168,33 @@
     "service-mapping": {
       "url": "",
       "name": "kb_diamond",
-      "method": "Diamond_Blastp_Search",
+      "method": "Diamond_Blastx_Search",
       "input_mapping": [
         {
           "narrative_system_variable": "workspace",
           "target_property": "workspace_name"
         },
         {
-          "input_parameter": "input_one_sequence",
-          "target_property": "input_one_sequence"
+          "input_parameter": "input_query_string",
+          "target_property": "input_query_string"
         },
         {
-          "input_parameter": "input_one_ref",
-          "target_property": "input_one_ref",
+          "input_parameter": "input_object_ref",
+          "target_property": "input_object_ref",
           "target_type_transform": "resolved-ref"
         },
         {
-          "input_parameter": "output_one_name",
-          "target_property": "output_one_name"
+          "input_parameter": "output_sequence_set_name",
+          "target_property": "output_sequence_set_name"
         },
         {
-          "input_parameter": "input_many_ref",
-          "target_property": "input_many_ref",
+          "input_parameter": "target_object_ref",
+          "target_property": "target_object_ref",
           "target_type_transform": "resolved-ref"
         },
         {
-          "input_parameter": "output_filtered_name",
-          "target_property": "output_filtered_name"
+          "input_parameter": "output_feature_set_name",
+          "target_property": "output_feature_set_name"
         },
         {
           "input_parameter": "e_value",
@@ -219,15 +219,22 @@
       ],
       "output_mapping": [
         {
-          "service_method_output_path": [
-            0
-          ],
-          "target_property": "output"
+          "narrative_system_variable": "workspace",
+          "target_property": "wsName"
         },
         {
-          "narrative_system_variable": "workspace",
-          "target_property": "workspaceName"
+          "service_method_output_path": [0,"report_name"],
+          "target_property": "report_name"
+        },
+        {
+          "service_method_output_path": [0,"report_ref"],
+          "target_property": "report_ref"
+        },
+        {
+          "constant_value": "16",
+          "target_property": "report_window_line_height"
         }
+
       ]
     }
   },

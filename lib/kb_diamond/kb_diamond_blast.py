@@ -21,10 +21,14 @@ db_stats = None
 diamond = "/kb/deployment/bin/diamond"
 if not os.path.isfile(diamond):
     diamond = "diamond"
-
-
-
-
+#
+# ws = workspaceService(self.workspaceURL, token=ctx['token'])
+# # objects = ws.get_objects([{'ref': input_many_ref}])
+# objects = ws.get_objects2({'objects': [{'ref': input_many_ref}]})['data']
+# input_many_data = objects[0]['data']
+# info = objects[0]['info']
+# input_many_name = str(info[1])
+# many_type_name = info[2].split('.')[1].split('-')[0]
 
 
 

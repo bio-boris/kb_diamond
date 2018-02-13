@@ -45,14 +45,15 @@ class kb_diamond(object):
            "id" is a numerical identifier of the workspace or object, and
            should just be used for workspace ** "name" is a string identifier
            of a workspace or object.  This is received from Narrative.),
-           parameter "input_one_sequence" of type "sequence", parameter
-           "input_one_ref" of type "data_obj_ref", parameter "input_many_ref"
-           of type "data_obj_ref", parameter "output_one_name" of type
-           "data_obj_name", parameter "output_filtered_name" of type
-           "data_obj_name", parameter "ident_thresh" of Double, parameter
-           "e_value" of Double, parameter "bitscore" of Double, parameter
-           "overlap_fraction" of Double, parameter "maxaccepts" of Double,
-           parameter "output_extra_format" of String
+           parameter "input_query_string" of String, parameter
+           "input_object_ref" of type "data_obj_ref", parameter
+           "target_object_ref" of type "data_obj_ref", parameter
+           "output_sequence_set_name" of type "data_obj_name", parameter
+           "output_feature_set_name" of type "data_obj_name", parameter
+           "ident_thresh" of Double, parameter "e_value" of Double, parameter
+           "bitscore" of Double, parameter "overlap_fraction" of Double,
+           parameter "maxaccepts" of Double, parameter "output_extra_format"
+           of String
         :returns: instance of type "Diamond_Output" (Diamond Output) ->
            structure: parameter "report_name" of String, parameter
            "report_ref" of String
@@ -72,14 +73,15 @@ class kb_diamond(object):
            "id" is a numerical identifier of the workspace or object, and
            should just be used for workspace ** "name" is a string identifier
            of a workspace or object.  This is received from Narrative.),
-           parameter "input_one_sequence" of type "sequence", parameter
-           "input_one_ref" of type "data_obj_ref", parameter "input_many_ref"
-           of type "data_obj_ref", parameter "output_one_name" of type
-           "data_obj_name", parameter "output_filtered_name" of type
-           "data_obj_name", parameter "ident_thresh" of Double, parameter
-           "e_value" of Double, parameter "bitscore" of Double, parameter
-           "overlap_fraction" of Double, parameter "maxaccepts" of Double,
-           parameter "output_extra_format" of String
+           parameter "input_query_string" of String, parameter
+           "input_object_ref" of type "data_obj_ref", parameter
+           "target_object_ref" of type "data_obj_ref", parameter
+           "output_sequence_set_name" of type "data_obj_name", parameter
+           "output_feature_set_name" of type "data_obj_name", parameter
+           "ident_thresh" of Double, parameter "e_value" of Double, parameter
+           "bitscore" of Double, parameter "overlap_fraction" of Double,
+           parameter "maxaccepts" of Double, parameter "output_extra_format"
+           of String
         :returns: instance of type "Diamond_Output" (Diamond Output) ->
            structure: parameter "report_name" of String, parameter
            "report_ref" of String

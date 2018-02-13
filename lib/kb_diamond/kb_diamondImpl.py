@@ -12,26 +12,26 @@ except:
     from configparser import ConfigParser  # py3
 
 # SDK Utils
-# from biokbase.workspace.client import Workspace as workspaceService
-from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 import kb_diamond_blast
 from KBaseReport.KBaseReportClient import KBaseReport
-from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from Workspace.WorkspaceClient import Workspace as Workspace
 
+from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
+from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
 
 
 #END_HEADER
 
+
 class kb_diamond:
-    """
+    '''
     Module Name:
     kb_diamond
 
     Module Description:
     A KBase module: kb_diamond
-    """
+    '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
     # Since asynchronous IO can lead to methods - even the same method -
@@ -39,9 +39,9 @@ class kb_diamond:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.0.1"
+    VERSION = "0.0.3"
     GIT_URL = "https://github.com/bio-boris/kb_diamond.git"
-    GIT_COMMIT_HASH = "a914f9a9d486ed6c2e0739580e27b386b0d1faad"
+    GIT_COMMIT_HASH = "1ee8ca211b9798ea9b8436e7c2c50e30e7c7458e"
 
     #BEGIN_CLASS_HEADER
     fasta_file = namedtuple("fasta_file", "file_path stdin")
@@ -52,22 +52,99 @@ class kb_diamond:
     database_stats = namedtuple("database_stats", "makedb_output dbinfo_output")
     blast_output = namedtuple("blast_output", "result output_filename search_parameters")
 
+    @staticmethod
+    def get_object_type(ws_object_info):
+        return ws_object_info[2].split('.')[1].split('-')[0]
 
 
-    def get_fasta_filepath(self,params):
-        if 'input_one_sequence' in params:
-            sequence = params['input_one_sequence']
+    # @staticmethod
+    # def genomeSetToFasta(object_ref):
+    #     GenomeSetToFASTA_params = {
+    #         'genomeSet_ref': input_many_ref,
+    #         'file': many_forward_reads_file,
+    #         'dir': many_forward_reads_file_dir,
+    #         'console': console,
+    #         'invalid_msgs': invalid_msgs,
+    #         'residue_type': 'nucleotide',
+    #         'feature_type': 'ALL',
+    #         'record_id_pattern': '%%genome_ref%%' + genome_id_feature_id_delim + '%%feature_id%%',
+    #         'record_desc_pattern': '[%%genome_ref%%]',
+    #         'case': 'upper',
+    #         'linewrap': 50,
+    #         'merge_fasta_files': 'TRUE'
+    #     }
+
+    def genome_to_fasta(self,object_ref,residue_type):
+        GenomeToFASTA_params = {
+            'genome_ref': object_ref,
+            'file': 'output.fasta',
+            'dir': self.shared_folder,
+            'console': [],
+            'invalid_msgs': [],
+            'residue_type': 'protein',
+            'feature_type': 'CDS',
+            'record_id_pattern': '%%feature_id%%',
+            'record_desc_pattern': '[%%genome_id%%]',
+            'case': 'upper',
+            'linewrap': 50
+        }
+
+        DOTFU = KBaseDataObjectToFileUtils(url=self.callback_url, token=self.token)
+        output = DOTFU.GenomeToFASTA(GenomeToFASTA_params)
+        feature_ids_count = len(output['feature_ids'])
+        if feature_ids_count > 0:
+            return output['fasta_file_path']
+        raise ValueError('No features found in genome')
+
+
+
+    def get_fasta_from_query_object(self,query_object_ref):
+        """
+
+        :param query_object_ref:
+        :return:
+        """
+        object = self.ws.get_objects2({'objects': [{'ref': query_object_ref}]})['data'][0]
+        input_type = self.get_object_type(object['info'])
+
+        #SequenceSet, SingleEndLibrary, FeatureSet, Genome, or GenomeSet
+
+        residue_type = 'protein'
+
+        if input_type in ['Genome']:
+            return self.genome_to_fasta(query_object_ref,residue_type)
+        elif input_type in ['GenomeSet','FeatureSet']:
+            raise ValueError('input_type not yet supported:' + input_type)
+        elif input_type in ['ContigSet','Assembly']:
+            return AssemblyUtil.assembly_as_fasta(self.ctx, {'ref': query_object_ref})['path']
+            raise ValueError('input_type not yet supported:' + input_type)
+        else:
+            raise ValueError('Invalid object reference was provided' + query_object_ref + input_type)
+
+
+
+
+    def get_query_fasta_filepath(self,params):
+        """
+        Get file path from input string or object reference
+        :param params:
+        :return:
+        """
+        if 'input_query_string' in params:
+            input_query_string = params['input_query_string']
             filename = os.path.join(self.shared_folder, 'STDIN.fasta')
             with open(filename, "w") as a:
-                a.write(sequence)
+                a.write(input_query_string)
                 a.close()
             return filename
+        elif 'input_object_ref' in params:
+            input_object_ref = params['input_object_ref']
+            return self.get_fasta_from_query_object(input_object_ref)
 
-        if 'assembly_input_ref' in params:
-            assembly_input_ref = params['assembly_input_ref']
-            pass
+        raise ValueError('No genetic sequence string or reference file object was provided')
 
-        raise ValueError('No genetic sequence string or reference file was provided')
+
+
 
 
 
@@ -95,7 +172,7 @@ class kb_diamond:
 
     #END_CLASS_HEADER
 
-    # config contains contents of config file in a hash or None if it couldn"t
+    # config contains contents of config file in a hash or None if it couldn't
     # be found
     def __init__(self, config):
         #BEGIN_CONSTRUCTOR
@@ -103,49 +180,45 @@ class kb_diamond:
         self.shared_folder = config['scratch']
         self.workspaceURL = config['workspace-url']
         self.dfu = DataFileUtil(self.callback_url)
-
         self.shock_url = config['shock-url']
         self.dfu = DataFileUtil(self.callback_url)
-
-
         self.scratch = config['scratch']
+        self.ws = None
         #END_CONSTRUCTOR
-
-
-
+        pass
 
     def Diamond_Blastp_Search(self, ctx, params):
         """
         Methods for BLAST of various flavors of one or more sequences against many sequences
         :param params: instance of type "Diamond_Params" (Diamond Input
            Params) -> structure: parameter "workspace_name" of type
-           "workspace_name" (** The workspace object refs are of form: ** **
-           objects = ws.get_objects([{"ref":
-           params["workspace_id"]+"/"+params["obj_name"]}]) ** ** "ref" means
+           "workspace_name" (** The workspace object refs are of form: ** ** 
+           objects = ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
            the entire name combining the workspace id and the object name **
            "id" is a numerical identifier of the workspace or object, and
            should just be used for workspace ** "name" is a string identifier
            of a workspace or object.  This is received from Narrative.),
-           parameter "input_one_sequence" of type "sequence", parameter
-           "input_one_ref" of type "data_obj_ref", parameter "input_many_ref"
-           of type "data_obj_ref", parameter "output_one_name" of type
-           "data_obj_name", parameter "output_filtered_name" of type
-           "data_obj_name", parameter "ident_thresh" of Double, parameter
-           "e_value" of Double, parameter "bitscore" of Double, parameter
-           "overlap_fraction" of Double, parameter "maxaccepts" of Double,
-           parameter "output_extra_format" of String
+           parameter "input_query_string" of String, parameter
+           "input_object_ref" of type "data_obj_ref", parameter
+           "target_object_ref" of type "data_obj_ref", parameter
+           "output_sequence_set_name" of type "data_obj_name", parameter
+           "output_feature_set_name" of type "data_obj_name", parameter
+           "ident_thresh" of Double, parameter "e_value" of Double, parameter
+           "bitscore" of Double, parameter "overlap_fraction" of Double,
+           parameter "maxaccepts" of Double, parameter "output_extra_format"
+           of String
         :returns: instance of type "Diamond_Output" (Diamond Output) ->
            structure: parameter "report_name" of String, parameter
            "report_ref" of String
         """
         # ctx is the context object
         # return variables are: output
-
         #BEGIN Diamond_Blastp_Search
         # workspace_name = params['workspace_name']
-        # self.ws = Workspace(self.workspaceURL, token=ctx['token'])
         #
-        # query_fasta_filepath = self.get_fasta_filepath(params)
+        #
+        #
         # subject_fasta_filepath = self.get_fasta_filepath(params)
         #
         # blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
@@ -158,42 +231,56 @@ class kb_diamond:
         # #output_filepath = blast_result.output_filename
         #
         #Blast File
+
+        self.ws = Workspace(self.workspaceURL, token=ctx['token'])
+        self.token = ctx['token']
+
+        query_fasta_filepath = self.get_query_fasta_filepath(params)
+        subject_fasta_filepath = self.get_query_fasta_filepath(params)
+
+
         blast = os.path.join(self.shared_folder, 'output.blast')
         with open(blast,'w') as f:
             contents = "I am a blast"
             f.write(contents)
-
-        output_file_shock_id = self.upload_to_shock(blast)
-
-        output_result = [{'path': blast,
-                             'name': os.path.basename(blast),
-                             'label': os.path.basename(blast),
-                             'description': 'File(s) generated '}]
-
-        objects_created = []
-        objects_created.append({'ref': output_file_shock_id,
-                                'description': "blast file not uploaded to shock"})
-
         #HTML File
         html_file = os.path.join(self.shared_folder, 'output.html')
         with open(html_file,'w') as f:
             contents = "<html><body>Hello</body></html>"
             f.write(contents)
-        report_shock_id = self.dfu.file_to_shock({'file_path': html_file,
-                                                  'pack': 'zip'})['shock_id']
 
+
+
+        #Output Files for Report
+        output_file_shock_id = self.upload_to_shock(blast)
+        output_results = list()
+        output_results.append({'path': blast,
+                                 'name': os.path.basename(blast),
+                             'label': os.path.basename(blast),
+                             'description': 'Raw Blast Output File That is Not Uploaded'})
+
+        output_results.append({'shock_id': output_file_shock_id,
+                               'name': os.path.basename(blast),
+                               'label': os.path.basename(blast),
+                               'description': 'Shock Uploaded Blast'})
+
+        output_results.append({'path': query_fasta_filepath,
+                               'name': os.path.basename(query_fasta_filepath),
+                               'label': os.path.basename(query_fasta_filepath),
+                               'description': 'Query Fasta Filepath'})
+
+
+
+        #HTML Files for Report
+        report_shock_id = self.upload_html_report_to_shock()
         html_report = [{'shock_id': report_shock_id,
                             'name': os.path.basename(html_file),
                             'label': os.path.basename(html_file),
-                            'description': 'HTML summary '}]
-
-
-
-
+                            'description': 'HTML Version of Blast Results '}]
 
         report_params = {'message': 'This is a report',
                          'workspace_name': params.get('workspace_name'),
-                          'file_links': output_result,
+                          'file_links': output_results,
                           'html_links': html_report,
                           'direct_html_link_index': 0,
                           'html_window_height': 333,
@@ -236,37 +323,8 @@ class kb_diamond:
         #         'text_message': 'Number of hits = ' + str(number_of_hits)
         #     })
 
-        report_output = self.generate_report(blast_results[0].output_filename,workspace_name)
 
 
-
-        # STEP 6: contruct the output to send back
-        output = {'report_name': report_output['report_name'],
-                  'report_ref': report_output['report_ref'],
-                  'inputs': [query_fasta_filepath, subject_database_filepath],
-                  'blast_results': blast_results
-                  }
-        print('returning:' + pformat(output))
-
-
-
-
-
-
-        # k = kb_diamond_blast()
-        #
-        # file_utils = KBaseDataObjectToFileUtils(url=params['callback_url'], token=ctx['token'])
-        # workspace_service = workspaceService(self.workspaceURL, token=ctx['token'])
-        # makedbs_output = k.make_db_from_object_ref(params,file_utils,workspace_service)
-
-        #
-        # return makedbs_output
-        # blastp_output = k.blast(params,file_utils)
-        # output = {"success": True ,
-        #           "makedb" : makedbs_output,
-        #           "blast_outputs" : blastp_output}
-
-        #
         # # At some point might do deeper type checking...
         # if not isinstance(output, dict):
         #     raise ValueError("Method Diamond_Blastp_Search return value " +
@@ -276,29 +334,33 @@ class kb_diamond:
 
         #END Diamond_Blastp_Search
 
-    def check_output(self,blast):
-        return blast
-
+        # At some point might do deeper type checking...
+        if not isinstance(output, dict):
+            raise ValueError('Method Diamond_Blastp_Search return value ' +
+                             'output is not type dict as required.')
+        # return the results
+        return [output]
 
     def Diamond_Blastx_Search(self, ctx, params):
         """
         :param params: instance of type "Diamond_Params" (Diamond Input
            Params) -> structure: parameter "workspace_name" of type
-           "workspace_name" (** The workspace object refs are of form: ** **
-           objects = ws.get_objects([{"ref":
-           params["workspace_id"]+"/"+params["obj_name"]}]) ** ** "ref" means
+           "workspace_name" (** The workspace object refs are of form: ** ** 
+           objects = ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
            the entire name combining the workspace id and the object name **
            "id" is a numerical identifier of the workspace or object, and
            should just be used for workspace ** "name" is a string identifier
            of a workspace or object.  This is received from Narrative.),
-           parameter "input_one_sequence" of type "sequence", parameter
-           "input_one_ref" of type "data_obj_ref", parameter "input_many_ref"
-           of type "data_obj_ref", parameter "output_one_name" of type
-           "data_obj_name", parameter "output_filtered_name" of type
-           "data_obj_name", parameter "ident_thresh" of Double, parameter
-           "e_value" of Double, parameter "bitscore" of Double, parameter
-           "overlap_fraction" of Double, parameter "maxaccepts" of Double,
-           parameter "output_extra_format" of String
+           parameter "input_query_string" of String, parameter
+           "input_object_ref" of type "data_obj_ref", parameter
+           "target_object_ref" of type "data_obj_ref", parameter
+           "output_sequence_set_name" of type "data_obj_name", parameter
+           "output_feature_set_name" of type "data_obj_name", parameter
+           "ident_thresh" of Double, parameter "e_value" of Double, parameter
+           "bitscore" of Double, parameter "overlap_fraction" of Double,
+           parameter "maxaccepts" of Double, parameter "output_extra_format"
+           of String
         :returns: instance of type "Diamond_Output" (Diamond Output) ->
            structure: parameter "report_name" of String, parameter
            "report_ref" of String
@@ -315,11 +377,10 @@ class kb_diamond:
 
         # At some point might do deeper type checking...
         if not isinstance(output, dict):
-            raise ValueError("Method Diamond_Blastx_Search return value " +
-                             "output is not type dict as required.")
+            raise ValueError('Method Diamond_Blastx_Search return value ' +
+                             'output is not type dict as required.')
         # return the results
         return [output]
-
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {"state": "OK",
@@ -329,11 +390,3 @@ class kb_diamond:
                      "git_commit_hash": self.GIT_COMMIT_HASH}
         #END_STATUS
         return [returnVal]
-
-    def process_params(self, params):
-        valid_commands = ["makedb", "blastp", "blastx", "view", "version", "dbinfo", "help"]
-        makedb_options = ["in", "db"]
-        general_options = ["threads"]
-        output_options = ["out"]
-        return True
-
