@@ -165,6 +165,36 @@ class kb_diamond:
     def upload_html_report_to_shock(self,filepath):
         return self.upload_to_shock(file_path = filepath,zipped=True)
 
+    def generate_sequence_set(self,**output_parameters):
+        blast_file = output_parameters['blast_file']
+        query_fasta_file = output_parameters['query_fasta_file']
+        output_name = "OUTPUTNAMEGOESHERE"
+
+        sequenceSet = {'sequence_set_id': 'SequenceSetIDGoesHere',
+                                  'description': 'SequenceSetDescriptionGoesHere',
+                                  'sequences': [{'sequence_id': ">Boris1",
+                                                 'description': "Boris blast out 1",
+                                                 'sequence': "ATGCCCCC"
+                                                 },
+                                                {'sequence_id': ">Boris2",
+                                                 'description': "Boris blast out 2",
+                                                 'sequence': "ATGGGGGG"
+                                                 }
+                                                ]
+                                  }
+
+        new_obj_info = self.ws.save_objects({
+            'workspace': self.workspace_name,
+            'objects': [{
+                'type': 'KBaseSequences.SequenceSet',
+                'data': sequenceSet,
+                'name': output_name,
+            }]
+        })
+        pprint(new_obj_info)
+        return True
+
+
 
 
 
@@ -182,6 +212,7 @@ class kb_diamond:
         self.dfu = DataFileUtil(self.callback_url)
         self.scratch = config['scratch']
         self.ws = None
+        self.workspace_name = None
         #END_CONSTRUCTOR
         pass
 
@@ -231,6 +262,7 @@ class kb_diamond:
         #Blast File
 
         self.ws = Workspace(self.workspaceURL, token=ctx['token'])
+        self.workspace_name = params['workspace_name']
         self.token = ctx['token']
 
         params['residue_type'] = 'protein'
@@ -250,6 +282,8 @@ class kb_diamond:
         with open(html_file,'w') as f:
             contents = "<html><body>Hello</body></html>"
             f.write(contents)
+
+        ref = self.generate_sequence_set(blast_file=blast, query_fasta_file=query_fasta_filepath)
 
 
 
@@ -283,6 +317,7 @@ class kb_diamond:
 
         report_params = {'message': 'This is a report',
                          'workspace_name': params.get('workspace_name'),
+                            'objects_create' : [ref],
                           'file_links': output_results,
                           'html_links': html_report,
                           'direct_html_link_index': 0,
