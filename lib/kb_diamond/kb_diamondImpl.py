@@ -17,6 +17,7 @@ from KBaseReport.KBaseReportClient import KBaseReport
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from Workspace.WorkspaceClient import Workspace as Workspace
 
+
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
 
@@ -98,7 +99,7 @@ class kb_diamond:
 
 
 
-    def get_fasta_from_query_object(self,query_object_ref):
+    def get_fasta_from_query_object(self,query_object_ref,residue_type):
         """
 
         :param query_object_ref:
@@ -109,7 +110,7 @@ class kb_diamond:
 
         #SequenceSet, SingleEndLibrary, FeatureSet, Genome, or GenomeSet
 
-        residue_type = 'protein'
+
 
         if input_type in ['Genome']:
             return self.genome_to_fasta(query_object_ref,residue_type)
@@ -131,15 +132,13 @@ class kb_diamond:
         :return:
         """
         if 'input_query_string' in params:
-            input_query_string = params['input_query_string']
             filename = os.path.join(self.shared_folder, 'STDIN.fasta')
             with open(filename, "w") as a:
-                a.write(input_query_string)
+                a.write(params['input_query_string'])
                 a.close()
             return filename
         elif 'input_object_ref' in params:
-            input_object_ref = params['input_object_ref']
-            return self.get_fasta_from_query_object(input_object_ref)
+            return self.get_fasta_from_query_object(params['input_object_ref'],params['residue_type'])
 
         raise ValueError('No genetic sequence string or reference file object was provided')
 
@@ -234,8 +233,12 @@ class kb_diamond:
         self.ws = Workspace(self.workspaceURL, token=ctx['token'])
         self.token = ctx['token']
 
+        params['residue_type'] = 'protein'
         query_fasta_filepath = self.get_query_fasta_filepath(params)
-        subject_fasta_filepath = self.get_query_fasta_filepath(params)
+
+
+
+        # subject_fasta_filepath = self.get_query_fasta_filepath(params)
 
 
         blast = os.path.join(self.shared_folder, 'output.blast')

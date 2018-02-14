@@ -9,6 +9,8 @@ from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDat
 from DataFileUtil.DataFileUtilClient import DataFileUtil as DFUClient
 from KBaseReport.KBaseReportClient import KBaseReport
 
+from Bio import SeqIO
+
 # END_HEADER
 
 database_stats = namedtuple("database_stats", "makedb_output dbinfo_output")
@@ -21,6 +23,12 @@ db_stats = None
 diamond = "/kb/deployment/bin/diamond"
 if not os.path.isfile(diamond):
     diamond = "diamond"
+
+
+class FastaException(Exception):
+    pass
+
+
 #
 # ws = workspaceService(self.workspaceURL, token=ctx['token'])
 # # objects = ws.get_objects([{'ref': input_many_ref}])
@@ -29,9 +37,6 @@ if not os.path.isfile(diamond):
 # info = objects[0]['info']
 # input_many_name = str(info[1])
 # many_type_name = info[2].split('.')[1].split('-')[0]
-
-
-
 
 
 # TODO Support <STDIN> sequence collections
@@ -83,6 +88,11 @@ def blast(parameters):
     """
     query_fasta_filepath = parameters["query_fasta_filepath"]
     subject_fasta_filepath = parameters["subject_fasta_filepath"]
+
+    for filepath in [query_fasta_filepath, subject_fasta_filepath]:
+        if not any(SeqIO.parse(filepath, "fasta")):
+            raise FastaException('Not a valid FASTA file')
+
     db = subject_fasta_filepath + ".dmnd"
     blast_type = parameters["blast_type"]
 
@@ -93,10 +103,10 @@ def blast(parameters):
         os.path.basename(query_fasta_filepath),
         os.path.basename(subject_fasta_filepath)
     )
-    #args = [diamond, blast_type, "--query", query_fasta_filepath, "--db", db, "--out", output_file]
+    # args = [diamond, blast_type, "--query", query_fasta_filepath, "--db", db, "--out", output_file]
     try:
-       # result = check_output(args)
-       # return blast_output(result, output_file, parameters)
+        # result = check_output(args)
+        # return blast_output(result, output_file, parameters)
         return blast_output("SUCCESS BLAST", query_fasta_filepath, parameters)
     except CalledProcessError as e:
         return blast_output(e, output_file, parameters)
@@ -111,10 +121,6 @@ def cleanup(files):
             os.remove(filename + ".dmnd")
         except OSError:
             pass
-
-
-
-
 
 # @staticmethod
 # def process_params(parameters):
