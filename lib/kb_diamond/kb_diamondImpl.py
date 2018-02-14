@@ -157,7 +157,7 @@ class kb_diamond:
     def upload_to_shock(self,**upload_arguments):
         file_path = upload_arguments['file_path']
         dfu_arguments = {'file_path': file_path}
-        if ('zipped' in upload_arguments and zipped == True):
+        if ('zipped' in upload_arguments and 'zipped' == True):
             dfu_arguments['pack'] = 'zip'
         return self.dfu.file_to_shock(dfu_arguments)['shock_id']
 
@@ -174,11 +174,13 @@ class kb_diamond:
                                   'description': 'SequenceSetDescriptionGoesHere',
                                   'sequences': [{'sequence_id': ">Boris1",
                                                  'description': "Boris blast out 1",
-                                                 'sequence': "ATGCCCCC"
+                                                 'sequence': "ATGCCCCC",
+                                                 'extra' : 'extra_goes_Here'
                                                  },
                                                 {'sequence_id': ">Boris2",
                                                  'description': "Boris blast out 2",
-                                                 'sequence': "ATGGGGGG"
+                                                 'sequence': "ATGGGGGG",
+                                                 'extra_field': 'extra_field_goes_here'
                                                  }
                                                 ]
                                   }
