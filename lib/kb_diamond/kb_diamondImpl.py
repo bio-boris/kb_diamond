@@ -362,7 +362,7 @@ class kb_diamond:
                                    output_sequence_set_name=output_sequence_set)
 
         # Output Files for Report
-        output_file_shock_id = self.dfu.file_to_shock({'file_path': blast})['shock_id']
+        output_file_shock_id = self.dfu.file_to_shock({'file_path': blast_result.output_filename})['shock_id']
 
         output_results = list()
         # output_results.append({'path': blast,
