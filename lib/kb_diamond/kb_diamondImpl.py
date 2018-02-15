@@ -325,14 +325,14 @@ class kb_diamond:
 
 
 
-        if 'input_query_string' in params:
+        if 'input_query_string' in params and params['input_query_string']:
             query_fasta_filepath = os.path.join(self.shared_folder, 'STDIN.fasta')
             with open(query_fasta_filepath, "w") as a:
                 a.write(params['input_query_string'])
                 a.close()
             return query_fasta_filepath
             del params['input_object_ref']
-        elif 'input_object_ref' in params:
+        if 'input_object_ref' in params:
             query_fasta_filepath = self.get_fasta_from_query_object(params['input_object_ref'])
 
         #subject_fasta_filepath = self.get_fasta_from_query_object(params['target_object_ref'])
@@ -389,9 +389,9 @@ class kb_diamond:
 
         report_params = {'message': 'This is a report',
                          'workspace_name': params.get('workspace_name'),
-                       
-                         'file_links': output_results,
-                         'html_links': html_report,
+
+                         'file_links': [],
+                         'html_links': [],
                          'direct_html_link_index': 0,
                          'html_window_height': 333,
                          'report_object_name': 'kb_diamond_report_' + str(uuid.uuid4())}
