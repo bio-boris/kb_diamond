@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #BEGIN_HEADER
-from collections import namedtuple
+from collections import namedtuple,defaultdict
 from subprocess import Popen, check_output, CalledProcessError
 import os
 import uuid
@@ -170,6 +170,52 @@ class kb_diamond:
         })
 
 
+    def fasta_to_dict(self,filename):
+        records = {}
+        for record in SeqIO.parse(filename, "fasta"):
+            if record.id in records:
+                print("Error, key already exists")  # Log or do something here
+            records[record.id] = record.seq
+        return records
+
+    def generate_blast_results_set(self,**output_parameters):
+        blast_file = output_parameters['blast_file']
+        query_fasta_file = output_parameters['query_fasta_file']
+        subject_fasta_file = output_parameters['subject_fasta_file']
+
+        queries = self.fasta_to_dict(query_fasta_file)
+        subjects = self.fasta_to_dict(subject_fasta_file)
+
+        keys = ['qseqid','sseqid','pident','length','mismatch',
+                'gapopen','qstart','qend','sstart','send','evalue','bitscore']
+
+        blast_results = list()
+
+        with open(blast_file) as bf:
+            for line in bf:
+                values = line.split("\t")
+                blast_result_line = dict(zip(keys, values))
+                qseqid = blast_result_line['qseqid']
+                sseqid = blast_result_line['sseqid']
+                blast_results.append(
+                    {'description': '',
+                     'sequence_id': qseqid,
+                     'sequence': queries[qseqid],
+                     'target_sequence_id': sseqid,
+                     'target_sequence': subjects[sseqid],
+                     'blast_output': blast_result_line})
+
+        return self.ws.save_objects({
+            'workspace': self.workspace_name,
+            'objects': [{
+                'type': 'KBaseSequences.SequenceSet',
+                'data': {'sequence_set_id': 'sequence_set_id', 'description': 'sequence_set_description',
+                         'sequences': blast_results},
+                'name': "output.blast",
+            }]
+        })
+
+
 
 
     def generate_sequence_set(self, **output_parameters):
@@ -180,15 +226,17 @@ class kb_diamond:
 
         created_objects = list()
         if output_sequence_set_name is not None:
-            created_objects.append (self.create_sequence_set(fasta_filepath=query_fasta_file,
+            created_objects.append(self.create_sequence_set(fasta_filepath=query_fasta_file,
                                      output_filename=output_sequence_set_name,
                                      sequence_set_id=output_sequence_set_name,
-                                     sequence_set_description='Input Query FASTA'))
+                                     sequence_set_description='INPUT QUERY FASTA'))
 
-        created_objects.append( self.create_sequence_set(fasta_filepath=subject_fasta_file,
-                                                       output_filename=os.path.basename(subject_fasta_file),
-                                                       sequence_set_id=os.path.basename(subject_fasta_file),
-                                                       sequence_set_description='Input Subject FASTA'))
+        created_objects.append(self.create_sequence_set(fasta_filepath=subject_fasta_file,
+                                output_filename=os.path.basename(subject_fasta_file),
+                                sequence_set_id=os.path.basename(subject_fasta_file),
+                                sequence_set_description='TARGET FASTA'))
+
+        created_objects.append(self.generate_blast_results_set(output_parameters))
 
 
         pprint(created_objects)
@@ -278,6 +326,7 @@ class kb_diamond:
         output_sequence_set = params['output_sequence_set_name'] if 'output_sequence_set_name' in params else None
 
         self.generate_sequence_set(blast_file=blast, query_fasta_file=query_fasta_filepath,
+                                   subject_fasta_file=query_fasta_filepath,
                                    output_sequence_set_name=output_sequence_set)
 
         # Output Files for Report
