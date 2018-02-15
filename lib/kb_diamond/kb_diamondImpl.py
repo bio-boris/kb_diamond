@@ -355,20 +355,20 @@ ATCG00180.1	AT5G60040.1	29.5	308	188	5	261	543	250	553	6.4e-30	130.2"
         output_file_shock_id = self.dfu.file_to_shock({'file_path': blast})['shock_id']
 
         output_results = list()
-        output_results.append({'path': blast,
-                               'name': os.path.basename(blast),
-                               'label': os.path.basename(blast),
-                               'description': 'Raw Blast Output File That is Not Uploaded'})
+        # output_results.append({'path': blast,
+        #                        'name': os.path.basename(blast),
+        #                        'label': os.path.basename(blast),
+        #                        'description': 'Raw Blast Output File That is Not Uploaded'})
 
         output_results.append({'shock_id': output_file_shock_id,
                                'name': os.path.basename(blast),
                                'label': os.path.basename(blast),
                                'description': 'Shock Uploaded Blast'})
 
-        output_results.append({'path': query_fasta_filepath,
-                               'name': os.path.basename(query_fasta_filepath),
-                               'label': os.path.basename(query_fasta_filepath),
-                               'description': 'Query Fasta Filepath'})
+        # output_results.append({'path': query_fasta_filepath,
+        #                        'name': os.path.basename(query_fasta_filepath),
+        #                        'label': os.path.basename(query_fasta_filepath),
+        #                        'description': 'Query Fasta Filepath'})
 
         # HTML Files for Report
         report_shock_id = self.dfu.file_to_shock({'file_path': blast, 'pack': 'zip'})['shock_id']
