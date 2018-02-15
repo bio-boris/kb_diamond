@@ -157,17 +157,19 @@ class kb_diamond:
         sequences = list()
         for record in SeqIO.parse(fasta_filepath, "fasta"):
             sequences.append
-            {'sequence_id': record.id, 'description': '', 'sequence': record.seq}
+            {'sequence_id': record.id, 'description': '', 'sequence': str(record.seq)}
 
-        return self.ws.save_objects({
+        new_obj_info=self.ws.save_objects({
             'workspace': self.workspace_name,
             'objects': [{
                 'type': 'KBaseSequences.SequenceSet',
                 'data': {'sequence_set_id': sequence_set_id, 'description': sequence_set_description,
                          'sequences': sequences},
-                'name': output_filename,
+                'name': 'seqset_'+str(uuid.uuid4())
             }]
-        })
+        })[0]
+        return {'ref': str(new_obj_info[6]) + '/' + str(new_obj_info[0]) + '/' + str(new_obj_info[4]),
+                'description' : 'Sequence Set for ' + output_filename}
 
 
     def fasta_to_dict(self,filename):
@@ -175,10 +177,10 @@ class kb_diamond:
         for record in SeqIO.parse(filename, "fasta"):
             if record.id in records:
                 print("Error, key already exists")  # Log or do something here
-            records[record.id] = record.seq
+            records[record.id] = str(record.seq)
         return records
 
-    def generate_blast_results_set(self,**output_parameters):
+    def generate_blast_results_set(self,output_parameters):
         blast_file = output_parameters['blast_file']
         query_fasta_file = output_parameters['query_fasta_file']
         subject_fasta_file = output_parameters['subject_fasta_file']
@@ -205,17 +207,17 @@ class kb_diamond:
                      'target_sequence': subjects[sseqid],
                      'blast_output': blast_result_line})
 
-        return self.ws.save_objects({
+        new_obj_info =  self.ws.save_objects({
             'workspace': self.workspace_name,
             'objects': [{
                 'type': 'KBaseSequences.SequenceSet',
                 'data': {'sequence_set_id': 'sequence_set_id', 'description': 'sequence_set_description',
                          'sequences': blast_results},
-                'name': "output.blast",
+                'name': "blast_"+str(uuid.uuid4()),
             }]
-        })
-
-
+        })[0]
+        return {'ref':str(new_obj_info[6]) + '/' + str(new_obj_info[0]) + '/' + str(new_obj_info[4]),
+                'description' : 'output_blast' }
 
 
     def generate_sequence_set(self, **output_parameters):
@@ -310,12 +312,32 @@ class kb_diamond:
         self.workspace_name = params['workspace_name']
         self.token = ctx['token']
 
-        query_fasta_filepath = self.get_query_fasta_filepath(params)
-        # subject_fasta_filepath = self.get_query_fasta_filepath(params)
+        #query_fasta_filepath = self.get_query_fasta_filepath(params)
+        #subject_fasta_filepath = self.get_query_fasta_filepath(params)
+
+        query_fasta_filepath = "/kb/module/data/queries.fa"
+        subject_fasta_filepath = "/kb/module/data/Athaliana_167_TAIR10.protein.fa"
 
         blast = os.path.join(self.shared_folder, 'output.blast')
         with open(blast, 'w') as f:
-            contents = "I am a blast"
+            contents = \
+"ATCG00500.1	ATCG00500.1	100.0	489	0	0	1	489	1	489	2.5e-270	928.3\
+ATCG00510.1	ATCG00510.1	100.0	38	0	0	1	38	1	38	1.0e-14	75.5\
+ATCG00280.1	ATCG00280.1	100.0	474	0	0	1	474	1	474	5.2e-289	990.3\
+ATCG00890.1	ATCG00890.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\
+ATCG00890.1	ATCG01250.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\
+ATCG00890.1	ATMG01320.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\
+ATCG00890.1	ATMG00285.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\
+ATCG00890.1	AT2G07689.1	39.1	192	111	4	129	319	2	188	6.5e-27	119.4\
+ATCG01250.1	ATCG00890.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\
+ATCG01250.1	ATCG01250.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\
+ATCG01250.1	ATMG01320.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\
+ATCG01250.1	ATMG00285.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\
+ATCG01250.1	AT2G07689.1	39.1	192	111	4	129	319	2	188	6.5e-27	119.4\
+ATCG00180.1	ATCG00180.1	100.0	681	0	0	1	681	1	681	0.0e+00	1406.7\
+ATCG00180.1	AT4G35800.1	29.0	310	191	5	261	543	242	549	2.0e-31	135.2\
+ATCG00180.1	AT5G60040.2	29.5	308	188	5	261	543	260	563	6.4e-30	130.2\
+ATCG00180.1	AT5G60040.1	29.5	308	188	5	261	543	250	553	6.4e-30	130.2"
             f.write(contents)
         # HTML File
         html_file = os.path.join(self.shared_folder, 'output.html')
@@ -325,8 +347,8 @@ class kb_diamond:
 
         output_sequence_set = params['output_sequence_set_name'] if 'output_sequence_set_name' in params else None
 
-        self.generate_sequence_set(blast_file=blast, query_fasta_file=query_fasta_filepath,
-                                   subject_fasta_file=query_fasta_filepath,
+        objects_created = self.generate_sequence_set(blast_file=blast, query_fasta_file=query_fasta_filepath,
+                                   subject_fasta_file=subject_fasta_filepath,
                                    output_sequence_set_name=output_sequence_set)
 
         # Output Files for Report
@@ -357,7 +379,7 @@ class kb_diamond:
 
         report_params = {'message': 'This is a report',
                          'workspace_name': params.get('workspace_name'),
-                         'objects_create': [ref],
+                         'objects_created': objects_created,
                          'file_links': output_results,
                          'html_links': html_report,
                          'direct_html_link_index': 0,
