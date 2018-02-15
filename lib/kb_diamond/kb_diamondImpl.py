@@ -20,6 +20,10 @@ from Bio import SeqIO
 from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
 
 
+class FastaException(Exception):
+    pass
+
+
 #END_HEADER
 
 
@@ -51,8 +55,6 @@ class kb_diamond:
     database_stats = namedtuple("database_stats", "makedb_output dbinfo_output")
     blast_output = namedtuple("blast_output", "result output_filename search_parameters")
 
-    class FastaException(Exception):
-        pass
 
     @staticmethod
     def get_object_type(ws_object_info):
@@ -105,6 +107,8 @@ class kb_diamond:
             raise ValueError('input_type not yet supported:' + input_type)
         else:
             raise ValueError('Invalid object reference was provided' + query_object_ref + input_type)
+
+
 
     def get_query_fasta_filepath(self, params):
         """
@@ -168,6 +172,7 @@ class kb_diamond:
 
 
     def fasta_to_dict(self,filename):
+        print("Saving fasta" + filename)
         records = {}
         for record in SeqIO.parse(filename, "fasta"):
             if record.id in records:
@@ -175,13 +180,27 @@ class kb_diamond:
             records[record.id] = str(record.seq)
         return records
 
+    def fasta_to_dict_alternative(self,filename):
+        print("Saving fasta" + filename)
+        records = {}
+        for record in SeqIO.parse(filename, "fasta"):
+            id = record.id.split(" ")[0]
+            if id in records:
+                print("Error, key already exists")  # Log or do something here
+            records[id] = str(record.seq)
+        return records
+
+
     def generate_blast_results_set(self,output_parameters):
         blast_file = output_parameters['blast_file']
         query_fasta_file = output_parameters['query_fasta_file']
         subject_fasta_file = output_parameters['subject_fasta_file']
 
         queries = self.fasta_to_dict(query_fasta_file)
+        #queries_alternative = self.fasta_to_dict_alternative(query_fasta_file)
+
         subjects = self.fasta_to_dict(subject_fasta_file)
+        #subjects_alternative = self.fasta_to_dict_alternative(subject_fasta_file)
 
         keys = ['qseqid','sseqid','pident','length','mismatch',
                 'gapopen','qstart','qend','sstart','send','evalue','bitscore']
@@ -200,8 +219,8 @@ class kb_diamond:
                 else:
                     query_seq = 'Not Found'
 
-                if sseqid in queries:
-                    target_seq = queries[sseqid]
+                if sseqid in subjects:
+                    target_seq = subjects[sseqid]
                 else:
                     target_seq = 'Not Found'
 
@@ -214,7 +233,7 @@ class kb_diamond:
                      'blast_output': blast_result_line})
 
 
-        pprint(blast_results)
+        #pprint(blast_results)
 
         new_obj_info =  self.ws.save_objects({
             'workspace': self.workspace_name,
@@ -298,59 +317,38 @@ class kb_diamond:
         # ctx is the context object
         # return variables are: output
         #BEGIN Diamond_Blastp_Search
-        # workspace_name = params['workspace_name']
-        #
-        #
-        #
-        # subject_fasta_filepath = self.get_fasta_filepath(params)
-        #
-
-        #
-        # Blast File
 
         self.ws = Workspace(self.workspaceURL, token=ctx['token'])
         self.workspace_name = params['workspace_name']
         self.token = ctx['token']
 
-        # blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
-        #                      "subject_fasta_filepath": subject_fasta_filepath,
-        #                      "blast_type": 'blastp'}
-        #
-        # print("About to blast")
-        #
-        # blast_result = kb_diamond_blast.blast(blast_parameters)
-        # output_filepath = blast_result.output_filename
-        # print(output_filepath)
 
-        query_fasta_filepath = self.get_query_fasta_filepath(params)
-        #TODO, CREATE ITS OWN METHOD SO IT LOOKS AT TARGETS ONLY
+
+
+        if 'input_query_string' in params:
+            query_fasta_filepath = os.path.join(self.shared_folder, 'STDIN.fasta')
+            with open(query_fasta_filepath, "w") as a:
+                a.write(params['input_query_string'])
+                a.close()
+            return query_fasta_filepath
+            del params['input_object_ref']
+        elif 'input_object_ref' in params:
+            query_fasta_filepath = self.get_fasta_from_query_object(params['input_object_ref'])
+
+        #subject_fasta_filepath = self.get_fasta_from_query_object(params['target_object_ref'])
         subject_fasta_filepath = query_fasta_filepath
 
-        #query_fasta_filepath = "/kb/module/data/queries.fa"
-        #subject_fasta_filepath = "/kb/module/data/Athaliana_167_TAIR10.protein.fa"
-        #query_fasta_filepath = subject_fasta_filepath
 
-        blast = os.path.join(self.shared_folder, 'output.blast')
-        with open(blast, 'w') as f:
-            contents = \
-"ATCG00500.1	ATCG00500.1	100.0	489	0	0	1	489	1	489	2.5e-270	928.3\n\
-ATCG00510.1	ATCG00510.1	100.0	38	0	0	1	38	1	38	1.0e-14	75.5\n\
-ATCG00280.1	ATCG00280.1	100.0	474	0	0	1	474	1	474	5.2e-289	990.3\n\
-ATCG00890.1	ATCG00890.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\n\
-ATCG00890.1	ATCG01250.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\n\
-ATCG00890.1	ATMG01320.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\n\
-ATCG00890.1	ATMG00285.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\n\
-ATCG00890.1	AT2G07689.1	39.1	192	111	4	129	319	2	188	6.5e-27	119.4\n\
-ATCG01250.1	ATCG00890.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\n\
-ATCG01250.1	ATCG01250.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\n\
-ATCG01250.1	ATMG01320.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\n\
-ATCG01250.1	ATMG00285.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\n\
-ATCG01250.1	AT2G07689.1	39.1	192	111	4	129	319	2	188	6.5e-27	119.4\n\
-ATCG00180.1	ATCG00180.1	100.0	681	0	0	1	681	1	681	0.0e+00	1406.7\n\
-ATCG00180.1	AT4G35800.1	29.0	310	191	5	261	543	242	549	2.0e-31	135.2\n\
-ATCG00180.1	AT5G60040.2	29.5	308	188	5	261	543	260	563	6.4e-30	130.2\n\
-ATCG00180.1	AT5G60040.1	29.5	308	188	5	261	543	250	553	6.4e-30	130.2\n"
-            f.write(contents)
+        blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
+                              "subject_fasta_filepath": subject_fasta_filepath,
+                              "blast_type": 'blastp'}
+
+
+
+        blast_result = kb_diamond_blast.blast(blast_parameters)
+
+
+
         # HTML File
         html_file = os.path.join(self.shared_folder, 'output.html')
         with open(html_file, 'w') as f:
@@ -359,7 +357,7 @@ ATCG00180.1	AT5G60040.1	29.5	308	188	5	261	543	250	553	6.4e-30	130.2\n"
 
         output_sequence_set = params['output_sequence_set_name'] if 'output_sequence_set_name' in params else None
 
-        objects_created = self.generate_sequence_set(blast_file=blast, query_fasta_file=query_fasta_filepath,
+        objects_created = self.generate_sequence_set(blast_file=blast_result.output_filename, query_fasta_file=query_fasta_filepath,
                                    subject_fasta_file=subject_fasta_filepath,
                                    output_sequence_set_name=output_sequence_set)
 

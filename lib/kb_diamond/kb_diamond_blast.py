@@ -63,8 +63,17 @@ def makedb(filename):
     :param filename: the filename to
     :returns: status of command
     """
-    return True
+    print("Making DATABASE with" + filename)
+
+    N = 10
+    f = open(filename)
+    for i in range(N):
+        line = f.next().strip()
+        print line
+    f.close()
+
     args = [diamond, "makedb", "--in", filename, "--db", filename]
+    print(args)
     return check_output(args)
 
 
@@ -74,7 +83,6 @@ def dbinfo(filename):
     :param filename:
     :returns: status of command or information about the database file
     """
-    return True
     filename = filename + ".dmnd"
     args = [diamond, "dbinfo", "--db", filename]
     return check_output(args)
@@ -89,6 +97,10 @@ def blast(parameters):
     query_fasta_filepath = parameters["query_fasta_filepath"]
     subject_fasta_filepath = parameters["subject_fasta_filepath"]
 
+    print("Got the following parameters")
+    print(query_fasta_filepath)
+    print(subject_fasta_filepath)
+
     for filepath in [query_fasta_filepath, subject_fasta_filepath]:
         if not any(SeqIO.parse(filepath, "fasta")):
             raise FastaException('Not a valid FASTA file')
@@ -96,6 +108,7 @@ def blast(parameters):
     db = subject_fasta_filepath + ".dmnd"
     blast_type = parameters["blast_type"]
 
+    print("Making DATABASE")
     makedb(subject_fasta_filepath)
 
     output_file = "{0}/{1}_{2}.out".format(
@@ -103,11 +116,11 @@ def blast(parameters):
         os.path.basename(query_fasta_filepath),
         os.path.basename(subject_fasta_filepath)
     )
-    # args = [diamond, blast_type, "--query", query_fasta_filepath, "--db", db, "--out", output_file]
+    args = [diamond, blast_type, "--query", query_fasta_filepath, "--db", db, "--out", output_file]
     try:
-        # result = check_output(args)
-        # return blast_output(result, output_file, parameters)
-        return blast_output("SUCCESS BLAST", query_fasta_filepath, parameters)
+        result = check_output(args)
+        return blast_output(result, output_file, parameters)
+        #return blast_output("SUCCESS BLAST", query_fasta_filepath, parameters)
     except CalledProcessError as e:
         return blast_output(e, output_file, parameters)
 
