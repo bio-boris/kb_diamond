@@ -55,27 +55,11 @@ class kb_diamond:
     def get_object_type(ws_object_info):
         return ws_object_info[2].split('.')[1].split('-')[0]
 
-    # @staticmethod
-    # def genomeSetToFasta(object_ref):
-    #     GenomeSetToFASTA_params = {
-    #         'genomeSet_ref': input_many_ref,
-    #         'file': many_forward_reads_file,
-    #         'dir': many_forward_reads_file_dir,
-    #         'console': console,
-    #         'invalid_msgs': invalid_msgs,
-    #         'residue_type': 'nucleotide',
-    #         'feature_type': 'ALL',
-    #         'record_id_pattern': '%%genome_ref%%' + genome_id_feature_id_delim + '%%feature_id%%',
-    #         'record_desc_pattern': '[%%genome_ref%%]',
-    #         'case': 'upper',
-    #         'linewrap': 50,
-    #         'merge_fasta_files': 'TRUE'
-    #     }
 
     def genome_cds_to_fasta(self, object_ref):
         GenomeToFASTA_params = {
             'genome_ref': object_ref,
-            'file': 'output.fasta',
+            'file': str(uuid.uuid4()) + ".fasta",
             'dir': self.shared_folder,
             'console': [],
             'invalid_msgs': [],
@@ -128,6 +112,9 @@ class kb_diamond:
             return filename
         elif 'input_object_ref' in params:
             return self.get_fasta_from_query_object(params['input_object_ref'])
+        elif 'target_object_ref' in params:
+            return self.get_fasta_from_query_object(params['input_object_ref'])
+
 
         raise ValueError('No genetic sequence string or reference file object was provided')
 
@@ -199,12 +186,23 @@ class kb_diamond:
                 blast_result_line = dict(zip(keys, values))
                 qseqid = blast_result_line['qseqid']
                 sseqid = blast_result_line['sseqid']
+
+                if qseqid in queries:
+                    query_seq = queries[qseqid]
+                else:
+                    query_seq = 'Not Found'
+
+                if sseqid in queries:
+                    target_seq = queries[sseqid]
+                else:
+                    target_seq = 'Not Found'
+
                 blast_results.append(
                     {'description': '',
                      'sequence_id': qseqid,
-                     'sequence': queries[qseqid],
+                     'sequence': query_seq,
                      'target_sequence_id': sseqid,
-                     'target_sequence': subjects[sseqid],
+                     'target_sequence': target_seq,
                      'blast_output': blast_result_line})
 
         new_obj_info =  self.ws.save_objects({
@@ -312,11 +310,12 @@ class kb_diamond:
         self.workspace_name = params['workspace_name']
         self.token = ctx['token']
 
-        #query_fasta_filepath = self.get_query_fasta_filepath(params)
-        #subject_fasta_filepath = self.get_query_fasta_filepath(params)
+        query_fasta_filepath = self.get_query_fasta_filepath(params)
+        #TODO, CREATE ITS OWN METHOD SO IT LOOKS AT TARGETS ONLY
+        subject_fasta_filepath = query_fasta_filepath
 
-        query_fasta_filepath = "/kb/module/data/queries.fa"
-        subject_fasta_filepath = "/kb/module/data/Athaliana_167_TAIR10.protein.fa"
+        # query_fasta_filepath = "/kb/module/data/queries.fa"
+        # subject_fasta_filepath = "/kb/module/data/Athaliana_167_TAIR10.protein.fa"
 
         blast = os.path.join(self.shared_folder, 'output.blast')
         with open(blast, 'w') as f:
