@@ -16,7 +16,7 @@ import kb_diamond_blast
 from KBaseReport.KBaseReportClient import KBaseReport
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from Workspace.WorkspaceClient import Workspace as Workspace
-
+from Bio import SeqIO
 from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
 
 
@@ -108,9 +108,7 @@ class kb_diamond:
             return self.genome_cds_to_fasta(query_object_ref)
         elif input_type == 'SequenceSet':
             raise ValueError('input_type not yet supported:' + input_type)
-        elif input_type in ['GenomeSet', 'FeatureSet']:
-            raise ValueError('input_type not yet supported:' + input_type)
-        elif input_type in ['ContigSet', 'Assembly']:
+        elif input_type in ['GenomeSet', 'FeatureSet', 'ContigSet', 'Assembly']:
             # return AssemblyUtil.assembly_as_fasta(self.ctx, {'ref': query_object_ref})['path']
             raise ValueError('input_type not yet supported:' + input_type)
         else:
@@ -149,36 +147,52 @@ class kb_diamond:
     def upload_html_report_to_shock(self, filepath):
         return self.upload_to_shock(file_path=filepath, zipped=True)
 
-    def generate_sequence_set(self, **output_parameters):
-        blast_file = output_parameters['blast_file']
-        query_fasta_file = output_parameters['query_fasta_file']
-        output_name = "OUTPUTNAMEGOESHERE"
 
-        sequenceSet = {'sequence_set_id': 'SequenceSetIDGoesHere',
-                       'description': 'SequenceSetDescriptionGoesHere',
-                       'sequences': [{'sequence_id': ">Boris1",
-                                      'description': "Boris blast out 1",
-                                      'sequence': "ATGCCCCC",
-                                      'extra': 'extra_goes_Here'
-                                      },
-                                     {'sequence_id': ">Boris2",
-                                      'description': "Boris blast out 2",
-                                      'sequence': "ATGGGGGG",
-                                      'extra_field': 'extra_field_goes_here'
-                                      }
-                                     ]
-                       }
+    def create_sequence_set(self, **sequence_set_parameters):
+        fasta_filepath = sequence_set_parameters['fasta_filepath']
+        output_filename = sequence_set_parameters['output_filename']
+        sequence_set_id = sequence_set_parameters['sequence_set_id']
+        sequence_set_description = sequence_set_parameters['sequence_set_description']
 
-        new_obj_info = self.ws.save_objects({
+        sequences = list()
+        for record in SeqIO.parse(fasta_filepath, "fasta"):
+            sequences.append
+            {'sequence_id': record.id, 'description': '', 'sequence': record.seq}
+
+        return self.ws.save_objects({
             'workspace': self.workspace_name,
             'objects': [{
                 'type': 'KBaseSequences.SequenceSet',
-                'data': sequenceSet,
-                'name': output_name,
+                'data': {'sequence_set_id': sequence_set_id, 'description': sequence_set_description,
+                         'sequences': sequences},
+                'name': output_filename,
             }]
         })
-        pprint(new_obj_info)
-        return True
+
+
+
+
+    def generate_sequence_set(self, **output_parameters):
+        blast_file = output_parameters['blast_file']
+        query_fasta_file = output_parameters['query_fasta_file']
+        subject_fasta_file = output_parameters['subject_fasta_file']
+        output_sequence_set_name = output_parameters['output_sequence_set_name']
+
+        created_objects = list()
+        if output_sequence_set_name is not None:
+            created_objects.append (self.create_sequence_set(fasta_filepath=query_fasta_file,
+                                     output_filename=output_sequence_set_name,
+                                     sequence_set_id=output_sequence_set_name,
+                                     sequence_set_description='Input Query FASTA'))
+
+        created_objects.append( self.create_sequence_set(fasta_filepath=subject_fasta_file,
+                                                       output_filename=os.path.basename(subject_fasta_file),
+                                                       sequence_set_id=os.path.basename(subject_fasta_file),
+                                                       sequence_set_description='Input Subject FASTA'))
+
+
+        pprint(created_objects)
+        return created_objects
 
     #END_CLASS_HEADER
 
@@ -261,7 +275,10 @@ class kb_diamond:
             contents = "<html><body>Hello</body></html>"
             f.write(contents)
 
-        ref = self.generate_sequence_set(blast_file=blast, query_fasta_file=query_fasta_filepath)
+        output_sequence_set = params['output_sequence_set_name'] if 'output_sequence_set_name' in params else None
+
+        self.generate_sequence_set(blast_file=blast, query_fasta_file=query_fasta_filepath,
+                                   output_sequence_set_name=output_sequence_set)
 
         # Output Files for Report
         output_file_shock_id = self.dfu.file_to_shock({'file_path': blast})['shock_id']
