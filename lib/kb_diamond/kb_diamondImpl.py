@@ -51,6 +51,9 @@ class kb_diamond:
     database_stats = namedtuple("database_stats", "makedb_output dbinfo_output")
     blast_output = namedtuple("blast_output", "result output_filename search_parameters")
 
+    class FastaException(Exception):
+        pass
+
     @staticmethod
     def get_object_type(ws_object_info):
         return ws_object_info[2].split('.')[1].split('-')[0]
@@ -70,21 +73,18 @@ class kb_diamond:
             'case': 'upper',
             'linewrap': 50
         }
-        print("About to write fasta")
+        #print("About to write fasta")
         DOTFU = KBaseDataObjectToFileUtils(url=self.callback_url, token=self.token)
         output = DOTFU.GenomeToFASTA(GenomeToFASTA_params)
-        feature_ids_count = len(output['feature_ids'])
-        if feature_ids_count > 0:
+
+        if len(output['feature_ids']) > 0:
             return output['fasta_file_path']
 
-        with open(output['fasta_file_path'], 'r') as fin:
-            print fin.read()
+        raise FastaException('No features found in genome')
 
 
-        print("Done printing fasta file")
-        exit()
 
-        raise ValueError('No features found in genome')
+
 
     def get_fasta_from_query_object(self, query_object_ref):
         """
