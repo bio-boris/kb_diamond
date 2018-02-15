@@ -17,8 +17,6 @@ from KBaseReport.KBaseReportClient import KBaseReport
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from Workspace.WorkspaceClient import Workspace as Workspace
 
-
-from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
 
 
@@ -57,7 +55,6 @@ class kb_diamond:
     def get_object_type(ws_object_info):
         return ws_object_info[2].split('.')[1].split('-')[0]
 
-
     # @staticmethod
     # def genomeSetToFasta(object_ref):
     #     GenomeSetToFASTA_params = {
@@ -75,7 +72,7 @@ class kb_diamond:
     #         'merge_fasta_files': 'TRUE'
     #     }
 
-    def genome_to_fasta(self,object_ref,residue_type):
+    def genome_cds_to_fasta(self, object_ref):
         GenomeToFASTA_params = {
             'genome_ref': object_ref,
             'file': 'output.fasta',
@@ -97,35 +94,29 @@ class kb_diamond:
             return output['fasta_file_path']
         raise ValueError('No features found in genome')
 
-
-
-    def get_fasta_from_query_object(self,query_object_ref,residue_type):
+    def get_fasta_from_query_object(self, query_object_ref):
         """
 
         :param query_object_ref:
         :return:
         """
-        object = self.ws.get_objects2({'objects': [{'ref': query_object_ref}]})['data'][0]
-        input_type = self.get_object_type(object['info'])
+        query_object = self.ws.get_objects2({'objects': [{'ref': query_object_ref}]})['data'][0]
+        input_type = self.get_object_type(query_object['info'])
 
-        #SequenceSet, SingleEndLibrary, FeatureSet, Genome, or GenomeSet
-
-
-
-        if input_type in ['Genome']:
-            return self.genome_to_fasta(query_object_ref,residue_type)
-        elif input_type in ['GenomeSet','FeatureSet']:
+        # SequenceSet, SingleEndLibrary, FeatureSet, Genome, or GenomeSet
+        if input_type == 'Genome':
+            return self.genome_cds_to_fasta(query_object_ref)
+        elif input_type == 'SequenceSet':
             raise ValueError('input_type not yet supported:' + input_type)
-        elif input_type in ['ContigSet','Assembly']:
-            return AssemblyUtil.assembly_as_fasta(self.ctx, {'ref': query_object_ref})['path']
+        elif input_type in ['GenomeSet', 'FeatureSet']:
+            raise ValueError('input_type not yet supported:' + input_type)
+        elif input_type in ['ContigSet', 'Assembly']:
+            # return AssemblyUtil.assembly_as_fasta(self.ctx, {'ref': query_object_ref})['path']
             raise ValueError('input_type not yet supported:' + input_type)
         else:
             raise ValueError('Invalid object reference was provided' + query_object_ref + input_type)
 
-
-
-
-    def get_query_fasta_filepath(self,params):
+    def get_query_fasta_filepath(self, params):
         """
         Get file path from input string or object reference
         :param params:
@@ -138,52 +129,45 @@ class kb_diamond:
                 a.close()
             return filename
         elif 'input_object_ref' in params:
-            return self.get_fasta_from_query_object(params['input_object_ref'],params['residue_type'])
+            return self.get_fasta_from_query_object(params['input_object_ref'])
 
         raise ValueError('No genetic sequence string or reference file object was provided')
 
-
-
-
-
-
-    def file_len(self,fname):
+    def file_len(self, fname):
         with open(fname) as f:
             for i, l in enumerate(f):
                 pass
         return i + 1
 
-
-    def upload_to_shock(self,**upload_arguments):
+    def upload_to_shock(self, **upload_arguments):
         file_path = upload_arguments['file_path']
         dfu_arguments = {'file_path': file_path}
         if ('zipped' in upload_arguments and 'zipped' == True):
             dfu_arguments['pack'] = 'zip'
         return self.dfu.file_to_shock(dfu_arguments)['shock_id']
 
+    def upload_html_report_to_shock(self, filepath):
+        return self.upload_to_shock(file_path=filepath, zipped=True)
 
-    def upload_html_report_to_shock(self,filepath):
-        return self.upload_to_shock(file_path = filepath,zipped=True)
-
-    def generate_sequence_set(self,**output_parameters):
+    def generate_sequence_set(self, **output_parameters):
         blast_file = output_parameters['blast_file']
         query_fasta_file = output_parameters['query_fasta_file']
         output_name = "OUTPUTNAMEGOESHERE"
 
         sequenceSet = {'sequence_set_id': 'SequenceSetIDGoesHere',
-                                  'description': 'SequenceSetDescriptionGoesHere',
-                                  'sequences': [{'sequence_id': ">Boris1",
-                                                 'description': "Boris blast out 1",
-                                                 'sequence': "ATGCCCCC",
-                                                 'extra' : 'extra_goes_Here'
-                                                 },
-                                                {'sequence_id': ">Boris2",
-                                                 'description': "Boris blast out 2",
-                                                 'sequence': "ATGGGGGG",
-                                                 'extra_field': 'extra_field_goes_here'
-                                                 }
-                                                ]
-                                  }
+                       'description': 'SequenceSetDescriptionGoesHere',
+                       'sequences': [{'sequence_id': ">Boris1",
+                                      'description': "Boris blast out 1",
+                                      'sequence': "ATGCCCCC",
+                                      'extra': 'extra_goes_Here'
+                                      },
+                                     {'sequence_id': ">Boris2",
+                                      'description': "Boris blast out 2",
+                                      'sequence': "ATGGGGGG",
+                                      'extra_field': 'extra_field_goes_here'
+                                      }
+                                     ]
+                       }
 
         new_obj_info = self.ws.save_objects({
             'workspace': self.workspace_name,
@@ -195,10 +179,6 @@ class kb_diamond:
         })
         pprint(new_obj_info)
         return True
-
-
-
-
 
     #END_CLASS_HEADER
 
@@ -215,6 +195,7 @@ class kb_diamond:
         self.scratch = config['scratch']
         self.ws = None
         self.workspace_name = None
+        self.token = None
         #END_CONSTRUCTOR
         pass
 
@@ -261,42 +242,35 @@ class kb_diamond:
         # #blast_result = kb_diamond_blast.blast(blast_parameters)
         # #output_filepath = blast_result.output_filename
         #
-        #Blast File
+        # Blast File
 
         self.ws = Workspace(self.workspaceURL, token=ctx['token'])
         self.workspace_name = params['workspace_name']
         self.token = ctx['token']
 
-        params['residue_type'] = 'protein'
         query_fasta_filepath = self.get_query_fasta_filepath(params)
-
-
-
         # subject_fasta_filepath = self.get_query_fasta_filepath(params)
 
-
         blast = os.path.join(self.shared_folder, 'output.blast')
-        with open(blast,'w') as f:
+        with open(blast, 'w') as f:
             contents = "I am a blast"
             f.write(contents)
-        #HTML File
+        # HTML File
         html_file = os.path.join(self.shared_folder, 'output.html')
-        with open(html_file,'w') as f:
+        with open(html_file, 'w') as f:
             contents = "<html><body>Hello</body></html>"
             f.write(contents)
 
         ref = self.generate_sequence_set(blast_file=blast, query_fasta_file=query_fasta_filepath)
 
-
-
-        #Output Files for Report
+        # Output Files for Report
         output_file_shock_id = self.dfu.file_to_shock({'file_path': blast})['shock_id']
 
         output_results = list()
         output_results.append({'path': blast,
-                                 'name': os.path.basename(blast),
-                             'label': os.path.basename(blast),
-                             'description': 'Raw Blast Output File That is Not Uploaded'})
+                               'name': os.path.basename(blast),
+                               'label': os.path.basename(blast),
+                               'description': 'Raw Blast Output File That is Not Uploaded'})
 
         output_results.append({'shock_id': output_file_shock_id,
                                'name': os.path.basename(blast),
@@ -308,22 +282,20 @@ class kb_diamond:
                                'label': os.path.basename(query_fasta_filepath),
                                'description': 'Query Fasta Filepath'})
 
-
-
-        #HTML Files for Report
+        # HTML Files for Report
         report_shock_id = self.dfu.file_to_shock({'file_path': blast, 'pack': 'zip'})['shock_id']
         html_report = [{'shock_id': report_shock_id,
-                            'name': os.path.basename(html_file),
-                            'label': os.path.basename(html_file),
-                            'description': 'HTML Version of Blast Results '}]
+                        'name': os.path.basename(html_file),
+                        'label': os.path.basename(html_file),
+                        'description': 'HTML Version of Blast Results '}]
 
         report_params = {'message': 'This is a report',
                          'workspace_name': params.get('workspace_name'),
-                            'objects_create' : [ref],
-                          'file_links': output_results,
-                          'html_links': html_report,
-                          'direct_html_link_index': 0,
-                          'html_window_height': 333,
+                         'objects_create': [ref],
+                         'file_links': output_results,
+                         'html_links': html_report,
+                         'direct_html_link_index': 0,
+                         'html_window_height': 333,
                          'report_object_name': 'kb_diamond_report_' + str(uuid.uuid4())}
 
         kbase_report_client = KBaseReport(self.callback_url)
@@ -333,11 +305,8 @@ class kb_diamond:
 
         return [report_output]
 
-
-
-        #blast_output = namedtuple("blast_output", "result output_filename search_parameters")
-        #return self.generate_report(blast_result.output_filename, workspace_name)
-
+        # blast_output = namedtuple("blast_output", "result output_filename search_parameters")
+        # return self.generate_report(blast_result.output_filename, workspace_name)
 
         # blast_output = namedtuple("blast_output", "result output_filename search_parameters")
         report = []
@@ -362,8 +331,6 @@ class kb_diamond:
         #         'objects_created': [{'ref': result.output_filename, 'description': 'Blast Result'}],
         #         'text_message': 'Number of hits = ' + str(number_of_hits)
         #     })
-
-
 
         # # At some point might do deeper type checking...
         # if not isinstance(output, dict):
@@ -410,9 +377,9 @@ class kb_diamond:
         #BEGIN Diamond_Blastx_Search
         makedbs_output = self.makedbs(params["databases"])
         blastx_output = self.blast(params)
-        output = {"success": True ,
-                  "makedb" : makedbs_output,
-                  "blast_outputs" : blastx_output}
+        output = {"success": True,
+                  "makedb": makedbs_output,
+                  "blast_outputs": blastx_output}
         #END Diamond_Blastx_Search
 
         # At some point might do deeper type checking...
@@ -421,6 +388,7 @@ class kb_diamond:
                              'output is not type dict as required.')
         # return the results
         return [output]
+
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {"state": "OK",
