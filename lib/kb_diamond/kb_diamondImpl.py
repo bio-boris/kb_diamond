@@ -325,14 +325,14 @@ class kb_diamond:
 
 
 
-        if 'input_query_string' in params and params['input_query_string']:
+        if 'input_query_string' in params:
             query_fasta_filepath = os.path.join(self.shared_folder, 'STDIN.fasta')
             with open(query_fasta_filepath, "w") as a:
                 a.write(params['input_query_string'])
                 a.close()
             return query_fasta_filepath
             del params['input_object_ref']
-        if 'input_object_ref' in params:
+        elif 'input_object_ref' in params:
             query_fasta_filepath = self.get_fasta_from_query_object(params['input_object_ref'])
 
         #subject_fasta_filepath = self.get_fasta_from_query_object(params['target_object_ref'])
@@ -343,9 +343,7 @@ class kb_diamond:
                               "subject_fasta_filepath": subject_fasta_filepath,
                               "blast_type": 'blastp'}
 
-
-
-        blast_result = kb_diamond_blast.blast(blast_parameters)
+        blast_result = kb_diamond_blast.blast(blast_parameters).output_filename
 
 
 
@@ -357,31 +355,21 @@ class kb_diamond:
 
         output_sequence_set = params['output_sequence_set_name'] if 'output_sequence_set_name' in params else None
 
-        objects_created = self.generate_sequence_set(blast_file=blast_result.output_filename, query_fasta_file=query_fasta_filepath,
+        objects_created = self.generate_sequence_set(blast_file=blast_result, query_fasta_file=query_fasta_filepath,
                                    subject_fasta_file=subject_fasta_filepath,
                                    output_sequence_set_name=output_sequence_set)
 
-        # Output Files for Report
-        output_file_shock_id = self.dfu.file_to_shock({'file_path': blast_result.output_filename})['shock_id']
-
+        # Upload Blast File
         output_results = list()
-        # output_results.append({'path': blast,
-        #                        'name': os.path.basename(blast),
-        #                        'label': os.path.basename(blast),
-        #                        'description': 'Raw Blast Output File That is Not Uploaded'})
 
+        output_file_shock_id = self.dfu.file_to_shock({'file_path': blast_result})['shock_id']
         output_results.append({'shock_id': output_file_shock_id,
                                'name': os.path.basename(blast),
                                'label': os.path.basename(blast),
                                'description': 'Shock Uploaded Blast'})
 
-        # output_results.append({'path': query_fasta_filepath,
-        #                        'name': os.path.basename(query_fasta_filepath),
-        #                        'label': os.path.basename(query_fasta_filepath),
-        #                        'description': 'Query Fasta Filepath'})
-
         # HTML Files for Report
-        report_shock_id = self.dfu.file_to_shock({'file_path': blast, 'pack': 'zip'})['shock_id']
+        report_shock_id = self.dfu.file_to_shock({'file_path': html_file, 'pack': 'zip'})['shock_id']
         html_report = [{'shock_id': report_shock_id,
                         'name': os.path.basename(html_file),
                         'label': os.path.basename(html_file),
@@ -389,16 +377,16 @@ class kb_diamond:
 
         report_params = {'message': 'This is a report',
                          'workspace_name': params.get('workspace_name'),
-
-                         'file_links': [],
-                         'html_links': [],
+                         'objects_created': objects_created,
+                         'file_links': output_results,
+                         'html_links': html_report,
                          'direct_html_link_index': 0,
                          'html_window_height': 333,
                          'report_object_name': 'kb_diamond_report_' + str(uuid.uuid4())}
 
         kbase_report_client = KBaseReport(self.callback_url)
         output = kbase_report_client.create_extended_report(report_params)
-        print("Report Name")
+
         report_output = {'report_name': output['name'], 'report_ref': output['ref']}
 
         return [report_output]
