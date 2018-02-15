@@ -70,12 +70,20 @@ class kb_diamond:
             'case': 'upper',
             'linewrap': 50
         }
-
+        print("About to write fasta")
         DOTFU = KBaseDataObjectToFileUtils(url=self.callback_url, token=self.token)
         output = DOTFU.GenomeToFASTA(GenomeToFASTA_params)
         feature_ids_count = len(output['feature_ids'])
         if feature_ids_count > 0:
             return output['fasta_file_path']
+
+        with open(output['fasta_file_path'], 'r') as fin:
+            print fin.read()
+
+
+        print("Done printing fasta file")
+        exit()
+
         raise ValueError('No features found in genome')
 
     def get_fasta_from_query_object(self, query_object_ref):
@@ -205,6 +213,9 @@ class kb_diamond:
                      'target_sequence': target_seq,
                      'blast_output': blast_result_line})
 
+
+        pprint(blast_results)
+
         new_obj_info =  self.ws.save_objects({
             'workspace': self.workspace_name,
             'objects': [{
@@ -238,8 +249,6 @@ class kb_diamond:
 
         created_objects.append(self.generate_blast_results_set(output_parameters))
 
-
-        pprint(created_objects)
         return created_objects
 
     #END_CLASS_HEADER
@@ -295,14 +304,7 @@ class kb_diamond:
         #
         # subject_fasta_filepath = self.get_fasta_filepath(params)
         #
-        # blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
-        #                     "subject_fasta_filepath": subject_fasta_filepath,
-        #                     "blast_type": 'blastp'}
-        #
-        # print("About to blast")
-        #
-        # #blast_result = kb_diamond_blast.blast(blast_parameters)
-        # #output_filepath = blast_result.output_filename
+
         #
         # Blast File
 
@@ -310,33 +312,44 @@ class kb_diamond:
         self.workspace_name = params['workspace_name']
         self.token = ctx['token']
 
+        # blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
+        #                      "subject_fasta_filepath": subject_fasta_filepath,
+        #                      "blast_type": 'blastp'}
+        #
+        # print("About to blast")
+        #
+        # blast_result = kb_diamond_blast.blast(blast_parameters)
+        # output_filepath = blast_result.output_filename
+        # print(output_filepath)
+
         query_fasta_filepath = self.get_query_fasta_filepath(params)
         #TODO, CREATE ITS OWN METHOD SO IT LOOKS AT TARGETS ONLY
         subject_fasta_filepath = query_fasta_filepath
 
-        # query_fasta_filepath = "/kb/module/data/queries.fa"
-        # subject_fasta_filepath = "/kb/module/data/Athaliana_167_TAIR10.protein.fa"
+        #query_fasta_filepath = "/kb/module/data/queries.fa"
+        #subject_fasta_filepath = "/kb/module/data/Athaliana_167_TAIR10.protein.fa"
+        #query_fasta_filepath = subject_fasta_filepath
 
         blast = os.path.join(self.shared_folder, 'output.blast')
         with open(blast, 'w') as f:
             contents = \
-"ATCG00500.1	ATCG00500.1	100.0	489	0	0	1	489	1	489	2.5e-270	928.3\
-ATCG00510.1	ATCG00510.1	100.0	38	0	0	1	38	1	38	1.0e-14	75.5\
-ATCG00280.1	ATCG00280.1	100.0	474	0	0	1	474	1	474	5.2e-289	990.3\
-ATCG00890.1	ATCG00890.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\
-ATCG00890.1	ATCG01250.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\
-ATCG00890.1	ATMG01320.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\
-ATCG00890.1	ATMG00285.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\
-ATCG00890.1	AT2G07689.1	39.1	192	111	4	129	319	2	188	6.5e-27	119.4\
-ATCG01250.1	ATCG00890.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\
-ATCG01250.1	ATCG01250.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\
-ATCG01250.1	ATMG01320.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\
-ATCG01250.1	ATMG00285.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\
-ATCG01250.1	AT2G07689.1	39.1	192	111	4	129	319	2	188	6.5e-27	119.4\
-ATCG00180.1	ATCG00180.1	100.0	681	0	0	1	681	1	681	0.0e+00	1406.7\
-ATCG00180.1	AT4G35800.1	29.0	310	191	5	261	543	242	549	2.0e-31	135.2\
-ATCG00180.1	AT5G60040.2	29.5	308	188	5	261	543	260	563	6.4e-30	130.2\
-ATCG00180.1	AT5G60040.1	29.5	308	188	5	261	543	250	553	6.4e-30	130.2"
+"ATCG00500.1	ATCG00500.1	100.0	489	0	0	1	489	1	489	2.5e-270	928.3\n\
+ATCG00510.1	ATCG00510.1	100.0	38	0	0	1	38	1	38	1.0e-14	75.5\n\
+ATCG00280.1	ATCG00280.1	100.0	474	0	0	1	474	1	474	5.2e-289	990.3\n\
+ATCG00890.1	ATCG00890.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\n\
+ATCG00890.1	ATCG01250.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\n\
+ATCG00890.1	ATMG01320.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\n\
+ATCG00890.1	ATMG00285.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\n\
+ATCG00890.1	AT2G07689.1	39.1	192	111	4	129	319	2	188	6.5e-27	119.4\n\
+ATCG01250.1	ATCG00890.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\n\
+ATCG01250.1	ATCG01250.1	100.0	390	0	0	1	390	1	390	2.6e-217	751.9\n\
+ATCG01250.1	ATMG01320.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\n\
+ATCG01250.1	ATMG00285.1	35.6	388	231	10	5	388	124	496	8.4e-51	198.7\n\
+ATCG01250.1	AT2G07689.1	39.1	192	111	4	129	319	2	188	6.5e-27	119.4\n\
+ATCG00180.1	ATCG00180.1	100.0	681	0	0	1	681	1	681	0.0e+00	1406.7\n\
+ATCG00180.1	AT4G35800.1	29.0	310	191	5	261	543	242	549	2.0e-31	135.2\n\
+ATCG00180.1	AT5G60040.2	29.5	308	188	5	261	543	260	563	6.4e-30	130.2\n\
+ATCG00180.1	AT5G60040.1	29.5	308	188	5	261	543	250	553	6.4e-30	130.2\n"
             f.write(contents)
         # HTML File
         html_file = os.path.join(self.shared_folder, 'output.html')
