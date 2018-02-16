@@ -392,6 +392,15 @@ class kb_diamond:
                          'html_window_height': 333,
                          'report_object_name': 'kb_diamond_report_' + str(uuid.uuid4())}
 
+        report_params = {'message': 'this is a report message',
+                         'workspace_name': params.get('workspace_name'),
+                         # 'objects_created': objects_created,
+                         # 'file_links': output_files,
+                         # 'html_links': output_html_files,
+                         # 'direct_html_link_index': 0,
+                         # 'html_window_height': 333,
+                         'report_object_name': 'kb_test_report_' + str(uuid.uuid4())}
+
         kbase_report_client = KBaseReport(self.callback_url)
         output = kbase_report_client.create_extended_report(report_params)
 
