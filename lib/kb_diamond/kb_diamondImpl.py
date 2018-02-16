@@ -330,28 +330,28 @@ class kb_diamond:
         subject_fasta_filepath = query_fasta_filepath
 
 
-        blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
-                              "subject_fasta_filepath": subject_fasta_filepath,
-                              "blast_type": 'blastp'}
-
-        #blast_result = kb_diamond_blast.blast(blast_parameters).output_filename
-        blast_result = query_fasta_filepath
-
+        # blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
+        #                       "subject_fasta_filepath": subject_fasta_filepath,
+        #                       "blast_type": 'blastp'}
         #
-        # # HTML File
-        html_dir = os.path.join(self.shared_folder + '/html/')
-        if not os.path.isdir(html_dir):
-            os.mkdir(html_dir)
-
-        html_file = os.path.join(html_dir, 'output.html')
-        with open(html_file, 'w') as f:
-            contents = "<html><body>Hello</body></html>"
-            f.write(contents)
-
-        html_file2 = os.path.join(html_dir, 'output2.html')
-        with open(html_file, 'w') as f:
-            contents = "<html><body>Hello2</body></html>"
-            f.write(contents)
+        # #blast_result = kb_diamond_blast.blast(blast_parameters).output_filename
+        # blast_result = query_fasta_filepath
+        #
+        # #
+        # # # HTML File
+        # html_dir = os.path.join(self.shared_folder + '/html/')
+        # if not os.path.isdir(html_dir):
+        #     os.mkdir(html_dir)
+        #
+        # html_file = os.path.join(html_dir, 'output.html')
+        # with open(html_file, 'w') as f:
+        #     contents = "<html><body>Hello</body></html>"
+        #     f.write(contents)
+        #
+        # html_file2 = os.path.join(html_dir, 'output2.html')
+        # with open(html_file, 'w') as f:
+        #     contents = "<html><body>Hello2</body></html>"
+        #     f.write(contents)
         #
         #
         # output_sequence_set = params['output_sequence_set_name'] if 'output_sequence_set_name' in params else None
