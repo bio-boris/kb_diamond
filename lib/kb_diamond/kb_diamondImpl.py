@@ -136,15 +136,7 @@ class kb_diamond:
                 pass
         return i + 1
 
-    def upload_to_shock(self, **upload_arguments):
-        file_path = upload_arguments['file_path']
-        dfu_arguments = {'file_path': file_path}
-        if ('zipped' in upload_arguments and 'zipped' == True):
-            dfu_arguments['pack'] = 'zip'
-        return self.dfu.file_to_shock(dfu_arguments)['shock_id']
 
-    def upload_html_report_to_shock(self, filepath):
-        return self.upload_to_shock(file_path=filepath, zipped=True)
 
 
     def create_sequence_set(self, **sequence_set_parameters):
@@ -210,6 +202,8 @@ class kb_diamond:
         with open(blast_file) as bf:
             for line in bf:
                 values = line.split("\t")
+                if len(values) != len(keys):
+                    continue
                 blast_result_line = dict(zip(keys, values))
                 qseqid = blast_result_line['qseqid']
                 sseqid = blast_result_line['sseqid']
@@ -343,15 +337,25 @@ class kb_diamond:
                               "subject_fasta_filepath": subject_fasta_filepath,
                               "blast_type": 'blastp'}
 
-        blast_result = kb_diamond_blast.blast(blast_parameters).output_filename
-
+        #blast_result = kb_diamond_blast.blast(blast_parameters).output_filename
+        blast_result = query_fasta_filepath
 
 
         # HTML File
-        html_file = os.path.join(self.shared_folder, 'output.html')
+        html_dir = os.path.join(self.shared_folder + '/html/')
+        if not os.path.isdir(html_dir):
+            os.mkdir(html_dir)
+
+        html_file = os.path.join(html_dir, 'output.html')
         with open(html_file, 'w') as f:
             contents = "<html><body>Hello</body></html>"
             f.write(contents)
+
+        html_file2 = os.path.join(html_dir, 'output2.html')
+        with open(html_file, 'w') as f:
+            contents = "<html><body>Hello2</body></html>"
+            f.write(contents)
+
 
         output_sequence_set = params['output_sequence_set_name'] if 'output_sequence_set_name' in params else None
 
@@ -362,14 +366,18 @@ class kb_diamond:
         # Upload Blast File
         output_results = list()
 
+        print("About to upload" + blast_result)
         output_file_shock_id = self.dfu.file_to_shock({'file_path': blast_result})['shock_id']
         output_results.append({'shock_id': output_file_shock_id,
-                               'name': os.path.basename(blast),
-                               'label': os.path.basename(blast),
+                               'name': os.path.basename(blast_result),
+                               'label': os.path.basename(blast_result),
                                'description': 'Shock Uploaded Blast'})
 
         # HTML Files for Report
-        report_shock_id = self.dfu.file_to_shock({'file_path': html_file, 'pack': 'zip'})['shock_id']
+
+        print("About to upload" + html_file)
+
+        report_shock_id = self.dfu.file_to_shock({'file_path': html_dir, 'pack':'zip'})['shock_id']
         html_report = [{'shock_id': report_shock_id,
                         'name': os.path.basename(html_file),
                         'label': os.path.basename(html_file),
