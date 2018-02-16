@@ -321,7 +321,6 @@ class kb_diamond:
             with open(query_fasta_filepath, "w") as a:
                 a.write(params['input_query_string'])
                 a.close()
-            return query_fasta_filepath
             del params['input_object_ref']
         elif 'input_object_ref' in params:
             query_fasta_filepath = self.get_fasta_from_query_object(params['input_object_ref'])
@@ -330,73 +329,66 @@ class kb_diamond:
         subject_fasta_filepath = query_fasta_filepath
 
 
-        # blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
-        #                       "subject_fasta_filepath": subject_fasta_filepath,
-        #                       "blast_type": 'blastp'}
-        #
-        # #blast_result = kb_diamond_blast.blast(blast_parameters).output_filename
-        # blast_result = query_fasta_filepath
-        #
-        # #
-        # # # HTML File
-        # html_dir = os.path.join(self.shared_folder + '/html/')
-        # if not os.path.isdir(html_dir):
-        #     os.mkdir(html_dir)
-        #
-        # html_file = os.path.join(html_dir, 'output.html')
-        # with open(html_file, 'w') as f:
-        #     contents = "<html><body>Hello</body></html>"
-        #     f.write(contents)
-        #
-        # html_file2 = os.path.join(html_dir, 'output2.html')
-        # with open(html_file, 'w') as f:
-        #     contents = "<html><body>Hello2</body></html>"
-        #     f.write(contents)
-        #
-        #
-        # output_sequence_set = params['output_sequence_set_name'] if 'output_sequence_set_name' in params else None
-        #
-        # objects_created = self.generate_sequence_set(blast_file=blast_result, query_fasta_file=query_fasta_filepath,
-        #                            subject_fasta_file=subject_fasta_filepath,
-        #                            output_sequence_set_name=output_sequence_set)
-        #
-        # # Upload Blast File
-        # output_results = list()
-        #
-        # print("About to upload" + blast_result)
-        # output_file_shock_id = self.dfu.file_to_shock({'file_path': blast_result})['shock_id']
-        # output_results.append({'shock_id': output_file_shock_id,
-        #                        'name': os.path.basename(blast_result),
-        #                        'label': os.path.basename(blast_result),
-        #                        'description': 'Shock Uploaded Blast'})
-        #
-        # # HTML Files for Report
-        #
-        # print("About to upload" + html_file)
-        #
-        # report_shock_id = self.dfu.file_to_shock({'file_path': html_dir, 'pack':'zip'})['shock_id']
-        # html_report = [{'shock_id': report_shock_id,
-        #                 'name': os.path.basename(html_file),
-        #                 'label': os.path.basename(html_file),
-        #                 'description': 'HTML Version of Blast Results '}]
-        #
-        # report_params = {'message': 'This is a report',
-        #                  'workspace_name': params.get('workspace_name'),
-        #                  'objects_created': objects_created,
-        #                  'file_links': output_results,
-        #                  'html_links': html_report,
-        #                  'direct_html_link_index': 0,
-        #                  'html_window_height': 333,
-        #                  'report_object_name': 'kb_diamond_report_' + str(uuid.uuid4())}
+        blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
+                              "subject_fasta_filepath": subject_fasta_filepath,
+                              "blast_type": 'blastp'}
 
-        report_params = {'message': 'this is a report message',
+        blast_result = kb_diamond_blast.blast(blast_parameters).output_filename
+        
+
+        #
+        # # HTML File
+        html_dir = os.path.join(self.shared_folder + '/html/')
+        if not os.path.isdir(html_dir):
+            os.mkdir(html_dir)
+
+        html_file = os.path.join(html_dir, 'output.html')
+        with open(html_file, 'w') as f:
+            contents = "<html><body>Hello</body></html>"
+            f.write(contents)
+
+        html_file2 = os.path.join(html_dir, 'output2.html')
+        with open(html_file, 'w') as f:
+            contents = "<html><body>Hello2</body></html>"
+            f.write(contents)
+
+
+        output_sequence_set = params['output_sequence_set_name'] if 'output_sequence_set_name' in params else None
+
+        objects_created = self.generate_sequence_set(blast_file=blast_result, query_fasta_file=query_fasta_filepath,
+                                   subject_fasta_file=subject_fasta_filepath,
+                                   output_sequence_set_name=output_sequence_set)
+
+        # Upload Blast File
+        output_results = list()
+
+        print("About to upload" + blast_result)
+        output_file_shock_id = self.dfu.file_to_shock({'file_path': blast_result})['shock_id']
+        output_results.append({'shock_id': output_file_shock_id,
+                               'name': os.path.basename(blast_result),
+                               'label': os.path.basename(blast_result),
+                               'description': 'Shock Uploaded Blast'})
+
+        # HTML Files for Report
+
+        print("About to upload" + html_file)
+
+        report_shock_id = self.dfu.file_to_shock({'file_path': html_dir, 'pack':'zip'})['shock_id']
+        html_report = [{'shock_id': report_shock_id,
+                        'name': os.path.basename(html_file),
+                        'label': os.path.basename(html_file),
+                        'description': 'HTML Version of Blast Results '}]
+
+        report_params = {'message': 'This is a report',
                          'workspace_name': params.get('workspace_name'),
-                         # 'objects_created': objects_created,
-                         # 'file_links': output_files,
-                         # 'html_links': output_html_files,
-                         # 'direct_html_link_index': 0,
-                         # 'html_window_height': 333,
-                         'report_object_name': 'kb_test_report_' + str(uuid.uuid4())}
+                         'objects_created': objects_created,
+                         'file_links': output_results,
+                         'html_links': html_report,
+                         'direct_html_link_index': 0,
+                         'html_window_height': 333,
+                         'report_object_name': 'kb_diamond_report_' + str(uuid.uuid4())}
+
+
 
         kbase_report_client = KBaseReport(self.callback_url)
         output = kbase_report_client.create_extended_report(report_params)
