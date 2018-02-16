@@ -315,46 +315,43 @@ class kb_diamond:
         self.ws = Workspace(self.workspaceURL, token=ctx['token'])
         self.workspace_name = params['workspace_name']
         self.token = ctx['token']
-        #
-        # 
-        #
-        #
-        # if 'input_query_string' in params:
-        #     query_fasta_filepath = os.path.join(self.shared_folder, 'STDIN.fasta')
-        #     with open(query_fasta_filepath, "w") as a:
-        #         a.write(params['input_query_string'])
-        #         a.close()
-        #     return query_fasta_filepath
-        #     del params['input_object_ref']
-        # elif 'input_object_ref' in params:
-        #     query_fasta_filepath = self.get_fasta_from_query_object(params['input_object_ref'])
-        #
-        # #subject_fasta_filepath = self.get_fasta_from_query_object(params['target_object_ref'])
-        # subject_fasta_filepath = query_fasta_filepath
-        #
-        #
-        # blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
-        #                       "subject_fasta_filepath": subject_fasta_filepath,
-        #                       "blast_type": 'blastp'}
-        #
-        # #blast_result = kb_diamond_blast.blast(blast_parameters).output_filename
-        # blast_result = query_fasta_filepath
-        #
+
+        if 'input_query_string' in params:
+            query_fasta_filepath = os.path.join(self.shared_folder, 'STDIN.fasta')
+            with open(query_fasta_filepath, "w") as a:
+                a.write(params['input_query_string'])
+                a.close()
+            return query_fasta_filepath
+            del params['input_object_ref']
+        elif 'input_object_ref' in params:
+            query_fasta_filepath = self.get_fasta_from_query_object(params['input_object_ref'])
+
+        #subject_fasta_filepath = self.get_fasta_from_query_object(params['target_object_ref'])
+        subject_fasta_filepath = query_fasta_filepath
+
+
+        blast_parameters = {'query_fasta_filepath': query_fasta_filepath,
+                              "subject_fasta_filepath": subject_fasta_filepath,
+                              "blast_type": 'blastp'}
+
+        #blast_result = kb_diamond_blast.blast(blast_parameters).output_filename
+        blast_result = query_fasta_filepath
+
         #
         # # HTML File
-        # html_dir = os.path.join(self.shared_folder + '/html/')
-        # if not os.path.isdir(html_dir):
-        #     os.mkdir(html_dir)
-        #
-        # html_file = os.path.join(html_dir, 'output.html')
-        # with open(html_file, 'w') as f:
-        #     contents = "<html><body>Hello</body></html>"
-        #     f.write(contents)
-        #
-        # html_file2 = os.path.join(html_dir, 'output2.html')
-        # with open(html_file, 'w') as f:
-        #     contents = "<html><body>Hello2</body></html>"
-        #     f.write(contents)
+        html_dir = os.path.join(self.shared_folder + '/html/')
+        if not os.path.isdir(html_dir):
+            os.mkdir(html_dir)
+
+        html_file = os.path.join(html_dir, 'output.html')
+        with open(html_file, 'w') as f:
+            contents = "<html><body>Hello</body></html>"
+            f.write(contents)
+
+        html_file2 = os.path.join(html_dir, 'output2.html')
+        with open(html_file, 'w') as f:
+            contents = "<html><body>Hello2</body></html>"
+            f.write(contents)
         #
         #
         # output_sequence_set = params['output_sequence_set_name'] if 'output_sequence_set_name' in params else None
