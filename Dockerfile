@@ -17,6 +17,7 @@ RUN pip install coverage
 # https://github.com/pypa/pip/issues/4098
 RUN pip install pip==8.1.2
 RUN pip install --disable-pip-version-check requests requests_toolbelt pyopenssl --upgrade
+RUN pip install cerberus
 
 # update security libraries in the base image
 RUN pip install cffi --upgrade \

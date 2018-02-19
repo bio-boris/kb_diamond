@@ -1,61 +1,42 @@
 # -*- coding: utf-8 -*-
-# BEGIN_HEADER
 from collections import namedtuple
-from subprocess import Popen, check_output, CalledProcessError
+from subprocess import check_output, CalledProcessError
 import os
-
-# SDK Utils
-from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
-from DataFileUtil.DataFileUtilClient import DataFileUtil as DFUClient
-from KBaseReport.KBaseReportClient import KBaseReport
-
 from Bio import SeqIO
-
-# END_HEADER
-
-database_stats = namedtuple("database_stats", "makedb_output dbinfo_output")
-blast_output = namedtuple("blast_output", "result output_filename search_parameters")
-fasta_file = namedtuple("fasta_file", "file_path stdin")
-
-create_db = False
-db_stats = None
-
-diamond = "/kb/deployment/bin/diamond"
-if not os.path.isfile(diamond):
-    diamond = "diamond"
 
 
 class FastaException(Exception):
     pass
 
 
-#
-# ws = workspaceService(self.workspaceURL, token=ctx['token'])
-# # objects = ws.get_objects([{'ref': input_many_ref}])
-# objects = ws.get_objects2({'objects': [{'ref': input_many_ref}]})['data']
-# input_many_data = objects[0]['data']
-# info = objects[0]['info']
-# input_many_name = str(info[1])
-# many_type_name = info[2].split('.')[1].split('-')[0]
+database_stats = namedtuple("database_stats", "makedb_output dbinfo_output")
+blast_output = namedtuple("blast_output", "result output_filename search_parameters")
+fasta_file = namedtuple("fasta_file", "file_path stdin")
+
+diamond = "/kb/deployment/bin/diamond"
+if not os.path.isfile(diamond):
+    diamond = "diamond"
 
 
-# TODO Support <STDIN> sequence collections
-# TODO Error Handling
-def makedbs(filenames):
-    """
-    Create database for diamond search from a list of input files
-    :param filenames:
-    :return:
-    """
-    create_db = True
-    status = {}
-    for filename in filenames:
-        status[filename] = database_stats(makedb(filename),
-                                          dbinfo(filename))
+def fasta_to_dict(filename):
+    print("Saving fasta" + filename)
+    records = {}
+    for record in SeqIO.parse(filename, "fasta"):
+        if record.id in records:
+            print("Error, key already exists")  # Log or do something here
+        records[record.id] = str(record.seq)
+    return records
 
+def fasta_to_dict_alternative(filename):
+    print("Saving fasta" + filename)
+    records = {}
+    for record in SeqIO.parse(filename, "fasta"):
+        id = record.id.split(" ")[0]
+        if id in records:
+            print("Error, key already exists")  # Log or do something here
+        records[id] = str(record.seq)
+    return records
 
-# TODO Check to see if database already exists, and don"t create it again
-# TODO Place in the correct temporary location
 
 def makedb(filename):
     """

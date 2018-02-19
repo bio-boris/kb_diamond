@@ -111,6 +111,7 @@ class kb_diamondTest(unittest.TestCase):
     def test_input_ref(self):
         params = {'workspace_name': self.getWsName(),
                   'input_object_ref': '12588/9/1',
+                  'target_object_ref': '12588/9/1',
                   'scratch': self.scratch,
                   'context': self.ctx
                   }
@@ -120,6 +121,8 @@ class kb_diamondTest(unittest.TestCase):
 
         self.assertEquals(1, 1)
 
+    def test_input_sequence_with_repeating_ids(self):
+        pass
 
     # # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
     # def XtestX_filter_contigs_ok(self):
