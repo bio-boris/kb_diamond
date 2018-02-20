@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 #BEGIN_HEADER
 import uuid
 
@@ -23,13 +22,13 @@ from pprint import pprint
 
 
 class kb_diamond:
-    """
+    '''
     Module Name:
     kb_diamond
 
     Module Description:
     A KBase module: kb_diamond
-    """
+    '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
     # Since asynchronous IO can lead to methods - even the same method -
@@ -39,7 +38,7 @@ class kb_diamond:
     ######################################### noqa
     VERSION = "0.0.3"
     GIT_URL = "https://github.com/bio-boris/kb_diamond.git"
-    GIT_COMMIT_HASH = "1ee8ca211b9798ea9b8436e7c2c50e30e7c7458e"
+    GIT_COMMIT_HASH = "4f9ef017074a4b366c6edcbf3a67a4772a5c46ed"
 
     #BEGIN_CLASS_HEADER
     fasta_file = namedtuple("fasta_file", "file_path stdin")
@@ -225,7 +224,7 @@ class kb_diamond:
             with open(query_fasta_filepath, "w") as a:
                 a.write(params["input_query_string"])
                 a.close()
-            if 'input_object_ref' in params:
+            if "input_object_ref" in params:
                 del params["input_object_ref"]
         elif "input_object_ref" in params:
             query_fasta_filepath = self.get_fasta_from_query_object(params["input_object_ref"])
@@ -291,7 +290,7 @@ class kb_diamond:
 
     #END_CLASS_HEADER
 
-    # config contains contents of config file in a hash or None if it couldn"t
+    # config contains contents of config file in a hash or None if it couldn't
     # be found
     def __init__(self, config):
         #BEGIN_CONSTRUCTOR
@@ -308,14 +307,15 @@ class kb_diamond:
         #END_CONSTRUCTOR
         pass
 
-    def Diamond_Blastp_Search(self, ctx, params):
+
+    def Diamond_Blast_Search(self, ctx, params):
         """
         Methods for BLAST of various flavors of one or more sequences against many sequences
         :param params: instance of type "Diamond_Params" (Diamond Input
            Params) -> structure: parameter "workspace_name" of type
            "workspace_name" (** The workspace object refs are of form: ** ** 
-           objects = ws.get_objects([{"ref":
-           params["workspace_id"]+"/"+params["obj_name"]}]) ** ** "ref" means
+           objects = ws.get_objects([{'ref':
+           params['workspace_id']+'/'+params['obj_name']}]) ** ** "ref" means
            the entire name combining the workspace id and the object name **
            "id" is a numerical identifier of the workspace or object, and
            should just be used for workspace ** "name" is a string identifier
@@ -323,29 +323,23 @@ class kb_diamond:
            parameter "input_query_string" of String, parameter
            "input_object_ref" of type "data_obj_ref", parameter
            "target_object_ref" of type "data_obj_ref", parameter
-           "output_sequence_set_name" of type "data_obj_name", parameter
-           "output_feature_set_name" of type "data_obj_name", parameter
-           "ident_thresh" of Double, parameter "e_value" of Double, parameter
-           "bitscore" of Double, parameter "overlap_fraction" of Double,
-           parameter "maxaccepts" of Double, parameter "output_extra_format"
-           of String
+           "output_sequence_set_name" of type "data_obj_name", parameter "id"
+           of Double, parameter "evalue" of Double, parameter "min-score" of
+           Long
         :returns: instance of type "Diamond_Output" (Diamond Output) ->
            structure: parameter "report_name" of String, parameter
            "report_ref" of String
         """
         # ctx is the context object
         # return variables are: output
-        #BEGIN Diamond_Blastp_Search
-
+        #BEGIN Diamond_Blast_Search
         self.ws = Workspace(self.workspaceURL, token=ctx["token"])
         self.workspace_name = params.get("workspace_name")
         self.token = ctx["token"]
 
-
         dv = DiamondValidator(params)
 
         filepaths = self.get_fasta_filepaths(params)
-
 
         blast_parameters = {"query_fasta_filepath": filepaths["query_fasta_filepath"],
                             "subject_fasta_filepath": filepaths["subject_fasta_filepath"],
@@ -380,56 +374,15 @@ class kb_diamond:
         report_output = {"report_name": output["name"], "report_ref": output["ref"]}
         return [report_output]
 
-
-        #END Diamond_Blastp_Search
-
-        # At some point might do deeper type checking...
-        if not isinstance(output, dict):
-            raise ValueError("Method Diamond_Blastp_Search return value " +
-                             "output is not type dict as required.")
-        # return the results
-        return [output]
-
-    def Diamond_Blastx_Search(self, ctx, params):
-        """
-        :param params: instance of type "Diamond_Params" (Diamond Input
-           Params) -> structure: parameter "workspace_name" of type
-           "workspace_name" (** The workspace object refs are of form: ** ** 
-           objects = ws.get_objects([{"ref":
-           params["workspace_id"]+"/"+params["obj_name"]}]) ** ** "ref" means
-           the entire name combining the workspace id and the object name **
-           "id" is a numerical identifier of the workspace or object, and
-           should just be used for workspace ** "name" is a string identifier
-           of a workspace or object.  This is received from Narrative.),
-           parameter "input_query_string" of String, parameter
-           "input_object_ref" of type "data_obj_ref", parameter
-           "target_object_ref" of type "data_obj_ref", parameter
-           "output_sequence_set_name" of type "data_obj_name", parameter
-           "output_feature_set_name" of type "data_obj_name", parameter
-           "ident_thresh" of Double, parameter "e_value" of Double, parameter
-           "bitscore" of Double, parameter "overlap_fraction" of Double,
-           parameter "maxaccepts" of Double, parameter "output_extra_format"
-           of String
-        :returns: instance of type "Diamond_Output" (Diamond Output) ->
-           structure: parameter "report_name" of String, parameter
-           "report_ref" of String
-        """
-        # ctx is the context object
-        # return variables are: output
-        #BEGIN Diamond_Blastx_Search
-        makedbs_output = self.makedbs(params["databases"])
-        blastx_output = self.blast(params)
-        output = {"success": True,
-                  "makedb": makedbs_output,
-                  "blast_outputs": blastx_output}
-        #END Diamond_Blastx_Search
+        #END Diamond_Blast_Search
 
         # At some point might do deeper type checking...
         if not isinstance(output, dict):
-            raise ValueError("Method Diamond_Blastx_Search return value " +
-                             "output is not type dict as required.")
+            raise ValueError('Method Diamond_Blast_Search return value ' +
+                             'output is not type dict as required.')
         # return the results
         return [output]
+
 
     def status(self, ctx):
         #BEGIN_STATUS

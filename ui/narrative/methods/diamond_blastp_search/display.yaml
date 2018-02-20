@@ -35,7 +35,7 @@ parameters :
         short-hint : |
             Single DNA sequence to use for the search.  If you enter something here, Output Query Object will be created with this sequence as a SequenceSet with one element.
         placeholder : |
-            Optionally enter DNA sequence...
+            Copy and Paste your FASTA file here
     input_object_ref:
         ui-name : |
             Query Feature or SequenceSet (optional)
@@ -58,36 +58,21 @@ parameters :
             Search results output file
         short-hint : |
             Object containing matches.  Output will be FeatureSet.
-    ident_thresh:
+    id:
         ui-name : |
-            Identity Threshold (%)
+            Sequence Identity (%)
         short-hint : |
-            threshold for hits
-    e_value:
+            Report only alignments above the given percentage of sequence identity.
+    evalue:
         ui-name : |
             E-value
         short-hint : |
-            threshold for hits
-    bitscore:
+            Maximum expected value to report an alignment (default=0.001)
+    min-score:
         ui-name : |
-            Bit Score
+            Minimum bit score
         short-hint : |
-            threshold for hits
-    overlap_fraction:
-        ui-name : |
-            Alignment Overlap Threshold (%)
-        short-hint : |
-            threshold for hits
-    maxaccepts:
-        ui-name : |
-            Max Accepts
-        short-hint : |
-            limits the number of hits in result.  Default: 1000
-    output_extra_format:
-        ui-name : |
-            Extra text output format
-        short-hint : |
-            generate an additional output file.  you get tabular m=7 (which used to be m=8) for free.
+            Minimum bit score to report an alignment. Setting this option will override the 'E-value' parameter.
 
 
 description : |

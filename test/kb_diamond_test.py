@@ -130,7 +130,7 @@ MTTFNNLPSIFVPLVGLVFPAIAMASLFLHIQKNKIF*" + "\n"
                   'context': self.ctx
                   }
         # Second, call your implementation
-        output = self.getImpl().Diamond_Blastp_Search(self.ctx, params)
+        output = self.getImpl().Diamond_Blast_Search(self.ctx, params)
         pprint(output)
 
         self.assertEquals(1, 1)

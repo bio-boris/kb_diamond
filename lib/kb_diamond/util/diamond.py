@@ -131,33 +131,3 @@ def cleanup(files):
         except OSError:
             pass
 
-# @staticmethod
-# def process_params(parameters):
-#     source = parameters['source']
-#     if source == 'command-line':
-#         parameters['query_file'] = parameters['query']
-#         parameters['database'] = parameters['database']
-#     elif source == 'ui':
-#         sequence = write_sequence_to_file(parameters)
-#         location = write_sequence_to_file(sequence)
-#     elif source == 'sequenceSet':
-#         location = parameters['query']
-#         database = parameters['database']
-#         extracted_location = 'extracted_location'
-#         extracted_database = 'extracted_database'
-#         parameters['query_file'] = extracted_location
-#         parameters['database'] = extracted_database
-#
-#
-# def write_sequence_to_file(self, params):
-#     DOTFU = KBaseDataObjectToFileUtils(url=params.callbackURL, token=ctx['token'])
-#     ParseFastaStr_retVal = DOTFU.ParseFastaStr({
-#         'fasta_str': params['input_one_sequence'],
-#         'residue_type': 'NUC',
-#         'case': 'UPPER',
-#         'console': console,
-#         'invalid_msgs': invalid_msgs
-#     })
-#     header_id = ParseFastaStr_retVal['id']
-#     header_desc = ParseFastaStr_retVal['desc']
-#     sequence_str_buf = ParseFastaStr_retVal['seq']

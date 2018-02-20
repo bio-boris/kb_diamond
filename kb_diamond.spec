@@ -26,14 +26,11 @@ module kb_diamond {
         data_obj_ref   input_object_ref;
         data_obj_ref   target_object_ref;
         data_obj_name  output_sequence_set_name;
-        data_obj_name  output_feature_set_name;
 
-        float  ident_thresh;
-        float  e_value;
-        float  bitscore;
-        float  overlap_fraction;
-        float  maxaccepts;
-        string output_extra_format;
+        float  id;
+        float  evalue;
+        int    min-score;
+
     } Diamond_Params;
 
     /* Diamond Output
@@ -45,7 +42,7 @@ module kb_diamond {
 
     /*  Methods for BLAST of various flavors of one or more sequences against many sequences
     */
-    funcdef Diamond_Blastp_Search (Diamond_Params params)  returns (Diamond_Output output) authentication required;
-    funcdef Diamond_Blastx_Search (Diamond_Params params)  returns (Diamond_Output output) authentication required;
+    funcdef Diamond_Blast_Search (Diamond_Params params)  returns (Diamond_Output output) authentication required;
+
 
 };
