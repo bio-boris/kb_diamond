@@ -11,22 +11,17 @@ class DiamondValidator(object):
     Validate parameters for diamondValidator
     """
 
-    narrative_parameters = ['scratch','target_object_ref', 'input_object_ref', 'input_query_string','context']
-    blast_options = []
+    narrative_parameters = ['scratch', 'target_object_ref', 'input_object_ref', 'input_query_string', 'context', 'workspace_name']
+    blast_params = {}
+    narrative_params = {}
+    valid = False
 
-    def __init__(self):
+    def __init__(self, params):
         self.narrative_ui_schema = self._build_narrative_ui_schema()
         self.blast_schema = self._build_blast_schema()
         self.narrative_ui = cerberus.Validator(self.narrative_ui_schema)
         self.blast_validator = cerberus.Validator(self.blast_schema)
-
-    def _build_blast_options(self, params):
-        blast_options = []
-        for item in params:
-            blast_options.append('--'+item)
-            if type(params[item]) != bool:
-                blast_options.append(params[item])
-        return blast_options
+        self.valid = self._validate_input(params)
 
 
 
@@ -63,32 +58,26 @@ class DiamondValidator(object):
     def _build_narrative_ui_schema(self):
         schema = dict()
         for nsp in self.narrative_parameters:
-            schema[nsp] = {'type' : 'string'}
+            schema[nsp] = {'type': 'string'}
         schema['context'] = {'type': 'dict'}
         return schema
 
-    def validate_input(self, params):
+    def _validate_input(self, params):
         """
 
         :param params:
         :return:
         """
-        narrative_params = {}
-        blast_params= {}
-
         for item in params.keys():
             if item in self.narrative_parameters:
-                narrative_params[item] = params[item]
+                self.narrative_params[item] = params[item]
             else:
-                blast_params[item] = params[item]
+                self.blast_params[item] = params[item]
 
-        if not self.narrative_ui.validate(narrative_params):
+        if not self.narrative_ui.validate(self.narrative_params):
             raise ValidationException(self.narrative_ui.errors)
-
-        if not self.blast_validator.validate(blast_params):
+        if not self.blast_validator.validate(self.blast_params):
             raise ValidationException(self.blast_validator.errors)
-
-        self.blast_options = self._build_blast_options(blast_params)
 
         return True
 

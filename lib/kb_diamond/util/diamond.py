@@ -27,14 +27,15 @@ def fasta_to_dict(filename):
         records[record.id] = str(record.seq)
     return records
 
+
 def fasta_to_dict_alternative(filename):
     print("Saving fasta" + filename)
     records = {}
     for record in SeqIO.parse(filename, "fasta"):
-        id = record.id.split(" ")[0]
-        if id in records:
+        record_id = record.id.split(" ")[0]
+        if record_id in records:
             print("Error, key already exists")  # Log or do something here
-        records[id] = str(record.seq)
+        records[record_id] = str(record.seq)
     return records
 
 
@@ -44,9 +45,8 @@ def makedb(filename):
     :param filename: the filename to
     :returns: status of command
     """
-    print("Making DATABASE with" + filename)
     args = [diamond, "makedb", "--in", filename, "--db", filename]
-    print(args)
+    print("Making DATABASE with" + filename + " ".join(args))
     return check_output(args)
 
 
@@ -61,6 +61,25 @@ def dbinfo(filename):
     return check_output(args)
 
 
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
+
+
+def check_for_empty_database(output):
+    """
+
+    :return:
+    """
+
+    for line in output.split("\n"):
+        if line == 'Processed 0 sequences, 0 letters.':
+            raise FastaException(
+                "Fasta file doesn't contain sequences. Check line endings and for an even number of lines" + output)
+
+
 def blast(parameters):
     """
     Build a database and blast against it
@@ -69,11 +88,6 @@ def blast(parameters):
     """
     query_fasta_filepath = parameters["query_fasta_filepath"]
     subject_fasta_filepath = parameters["subject_fasta_filepath"]
-
-    print("Got the following parameters")
-    print(query_fasta_filepath)
-    print(subject_fasta_filepath)
-
     for filepath in [query_fasta_filepath, subject_fasta_filepath]:
         if not any(SeqIO.parse(filepath, "fasta")):
             raise FastaException('Not a valid FASTA file')
@@ -81,8 +95,8 @@ def blast(parameters):
     db = subject_fasta_filepath + ".dmnd"
     blast_type = parameters["blast_type"]
 
-    print("Making DATABASE")
-    makedb(subject_fasta_filepath)
+    check_for_empty_database(makedb(subject_fasta_filepath))
+
 
     output_file = "{0}/{1}_{2}.out".format(
         os.path.dirname(query_fasta_filepath),
@@ -90,13 +104,19 @@ def blast(parameters):
         os.path.basename(subject_fasta_filepath)
     )
     args = [diamond, blast_type, "--query", query_fasta_filepath, "--db", db, "--out", output_file]
-    args.append(parameters['optional_params'])
+    blast_options = parameters['blast_options']
+    for key in blast_options.keys():
+        args.append("--" + key)
+        val = blast_options[key]
+        if type(val) != bool:
+            args.append(str(val))
+    print "About to blast"
 
-    exit(1)
+    print(args)
     try:
         result = check_output(args)
         return blast_output(result, output_file, parameters)
-        #return blast_output("SUCCESS BLAST", query_fasta_filepath, parameters)
+        # return blast_output("SUCCESS BLAST", query_fasta_filepath, parameters)
     except CalledProcessError as e:
         return blast_output(e, output_file, parameters)
 

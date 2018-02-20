@@ -18,6 +18,7 @@ from kb_diamond.kb_diamondImpl import kb_diamond
 from kb_diamond.kb_diamondServer import MethodContext
 from kb_diamond.authclient import KBaseAuth as _KBaseAuth
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
+from kb_diamond.util.diamond import FastaException
 
 
 class kb_diamondTest(unittest.TestCase):
@@ -110,16 +111,16 @@ class kb_diamondTest(unittest.TestCase):
 
     def test_input_ref(self):
 
-        query_seq = ">ATCG00500.1 pacid=19637947 transcript=ATCG00500.1 locus=ATCG00500 ID=ATCG00500.1.TAIR10 annot-version=TAIR10\
+        query_seq = ">ATCG00500.1 pacid=19637947 transcript=ATCG00500.1 locus=ATCG00500 ID=ATCG00500.1.TAIR10 annot-version=TAIR10\n\
 MEKSWFNFMFSKGELEYRGELSKAMDSFAPGEKTTISQDRFIYDMDKNFYGWDERSSYSSSYSNNVDLLVSSKDIRNFIS\
 DDTFFVRDSNKNSYSIFFDKKKKIFEIDNDFSDLEKFFYSYCSSSYLNNRSKGDNDLHYDPYIKDTKYNCTNHINSCIDS\
 YFRSYICIDNNFLIDSNNFNESYIYNFICSESGKIRESKNYKIRTNRNRSNLISSKDFDITQNYNQLWIQCDNCYGLMYK\
 KVKMNVCEQCGHYLKMSSSERIELSIDPGTWNPMDEDMVSADPIKFHSKEEPYKNRIDSAQKTTGLTDAVQTGTGQLNGI\
 PVALGVMDFRFMGGSMGSVVGEKITRLIEYATNQCLPLILVCSSGGARMQEGSLSLMQMAKISSVLCDYQSSKKLFYISI\
 LTSPTTGGVTASFGMLGDIIIAEPYAYIAFAGKRVIEQTLKKAVPEGSQAAESLLRKGLLDAIVPRNLLKGVLSELFQLH\
-AFFPLNTN*\
->ATCG00510.1 pacid=19637948 transcript=ATCG00510.1 locus=ATCG00510 ID=ATCG00510.1.TAIR10 annot-version=TAIR10\
-MTTFNNLPSIFVPLVGLVFPAIAMASLFLHIQKNKIF*"
+AFFPLNTN*" + "\n" + \
+">ATCG00510.1 pacid=19637948 transcript=ATCG00510.1 locus=ATCG00510 ID=ATCG00510.1.TAIR10 annot-version=TAIR10 \
+MTTFNNLPSIFVPLVGLVFPAIAMASLFLHIQKNKIF*" + "\n"
 
         params = {'workspace_name': self.getWsName(),
                   'evalue' : 0.1,
@@ -133,6 +134,7 @@ MTTFNNLPSIFVPLVGLVFPAIAMASLFLHIQKNKIF*"
         pprint(output)
 
         self.assertEquals(1, 1)
+
 
     def test_input_sequence_with_repeating_ids(self):
         pass

@@ -241,7 +241,7 @@ class kb_diamond:
 
         return {"query_fasta_filepath": query_fasta_filepath, "subject_fasta_filepath": subject_fasta_filepath}
 
-    def build_html_reports(self):
+    def build_html_reports(self,blast_result):
         #
         # # HTML File
         html_dir = os.path.join(self.shared_folder + "/html/")
@@ -338,24 +338,20 @@ class kb_diamond:
         #BEGIN Diamond_Blastp_Search
 
         self.ws = Workspace(self.workspaceURL, token=ctx["token"])
-        self.workspace_name = params.pop("workspace_name")
+        self.workspace_name = params.get("workspace_name")
         self.token = ctx["token"]
 
-        dv = DiamondValidator()
-        dv.validate_input(params)
-
-        pprint(params)
+        dv = DiamondValidator(params)
 
         filepaths = self.get_fasta_filepaths(params)
 
 
         blast_parameters = {"query_fasta_filepath": filepaths["query_fasta_filepath"],
                             "subject_fasta_filepath": filepaths["subject_fasta_filepath"],
-                            "blast_options" : DiamondValidator.blast_options,
+                            "blast_options": dv.blast_params,
                             "blast_type": "blastp"}
 
         pprint(blast_parameters)
-        exit(1)
 
         blast_result = blast(blast_parameters).output_filename
         uploaded_blast_result = self.upload_blast_result(blast_result)
