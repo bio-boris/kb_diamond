@@ -5,6 +5,7 @@ import time
 import requests
 
 from os import environ
+
 try:
     from ConfigParser import ConfigParser  # py2
 except:
@@ -96,11 +97,10 @@ class kb_diamondTest(unittest.TestCase):
                         '>seq3\n' \
                         'agcttttcatgg'
 
-
         params = {'workspace_name': self.getWsName(),
                   'input_one_sequence': fasta_content,
-                  'scratch' : self.scratch,
-                  'context' : self.ctx
+                  'scratch': self.scratch,
+                  'context': self.ctx
                   }
         # Second, call your implementation
         output = self.getImpl().Diamond_Blastp_Search(self.ctx, params)
@@ -109,8 +109,21 @@ class kb_diamondTest(unittest.TestCase):
         self.assertEquals(1, 1)
 
     def test_input_ref(self):
+
+        query_seq = ">ATCG00500.1 pacid=19637947 transcript=ATCG00500.1 locus=ATCG00500 ID=ATCG00500.1.TAIR10 annot-version=TAIR10\
+MEKSWFNFMFSKGELEYRGELSKAMDSFAPGEKTTISQDRFIYDMDKNFYGWDERSSYSSSYSNNVDLLVSSKDIRNFIS\
+DDTFFVRDSNKNSYSIFFDKKKKIFEIDNDFSDLEKFFYSYCSSSYLNNRSKGDNDLHYDPYIKDTKYNCTNHINSCIDS\
+YFRSYICIDNNFLIDSNNFNESYIYNFICSESGKIRESKNYKIRTNRNRSNLISSKDFDITQNYNQLWIQCDNCYGLMYK\
+KVKMNVCEQCGHYLKMSSSERIELSIDPGTWNPMDEDMVSADPIKFHSKEEPYKNRIDSAQKTTGLTDAVQTGTGQLNGI\
+PVALGVMDFRFMGGSMGSVVGEKITRLIEYATNQCLPLILVCSSGGARMQEGSLSLMQMAKISSVLCDYQSSKKLFYISI\
+LTSPTTGGVTASFGMLGDIIIAEPYAYIAFAGKRVIEQTLKKAVPEGSQAAESLLRKGLLDAIVPRNLLKGVLSELFQLH\
+AFFPLNTN*\
+>ATCG00510.1 pacid=19637948 transcript=ATCG00510.1 locus=ATCG00510 ID=ATCG00510.1.TAIR10 annot-version=TAIR10\
+MTTFNNLPSIFVPLVGLVFPAIAMASLFLHIQKNKIF*"
+
         params = {'workspace_name': self.getWsName(),
-                  'input_object_ref': '12588/9/1',
+                  'evalue' : 0.1,
+                  'input_query_string': query_seq,
                   'target_object_ref': '12588/9/1',
                   'scratch': self.scratch,
                   'context': self.ctx
@@ -147,10 +160,10 @@ class kb_diamondTest(unittest.TestCase):
     #     pprint(output)
     #
     #     self.assertEquals(1,1)
-        # # Validate the returned data
-        # self.assertEqual(ret[0]['n_initial_contigs'], 3)
-        # self.assertEqual(ret[0]['n_contigs_removed'], 1)
-        # self.assertEqual(ret[0]['n_contigs_remaining'], 2)
+    # # Validate the returned data
+    # self.assertEqual(ret[0]['n_initial_contigs'], 3)
+    # self.assertEqual(ret[0]['n_contigs_removed'], 1)
+    # self.assertEqual(ret[0]['n_contigs_remaining'], 2)
 
     # def test_filter_contigs_err1(self):
     #     with self.assertRaises(ValueError) as errorContext:

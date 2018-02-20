@@ -17,6 +17,7 @@ from DataFileUtil.DataFileUtilClient import DataFileUtil
 from Workspace.WorkspaceClient import Workspace as Workspace
 from Bio import SeqIO
 from KBaseDataObjectToFileUtils.KBaseDataObjectToFileUtilsClient import KBaseDataObjectToFileUtils
+from pprint import pprint
 
 #END_HEADER
 
@@ -224,14 +225,17 @@ class kb_diamond:
             with open(query_fasta_filepath, "w") as a:
                 a.write(params["input_query_string"])
                 a.close()
-            del params["input_object_ref"]
+            if 'input_object_ref' in params:
+                del params["input_object_ref"]
         elif "input_object_ref" in params:
             query_fasta_filepath = self.get_fasta_from_query_object(params["input_object_ref"])
         else:
+            pprint(params)
             raise FastaException("need a copy/pasted fasta file or input_object_ref")
 
         if "target_object_ref" in params:
-            subject_fasta_filepath = self.get_fasta_from_query_object(params["target_object_ref"])
+            subject_fasta_filepath = query_fasta_filepath
+           # subject_fasta_filepath = self.get_fasta_from_query_object(params["target_object_ref"])
         else:
             raise FastaException("need a target_object_ref")
 
@@ -334,21 +338,26 @@ class kb_diamond:
         #BEGIN Diamond_Blastp_Search
 
         self.ws = Workspace(self.workspaceURL, token=ctx["token"])
-        self.workspace_name = params["workspace_name"]
+        self.workspace_name = params.pop("workspace_name")
         self.token = ctx["token"]
 
-        DiamondValidator().validate_input(params)
+        dv = DiamondValidator()
+        dv.validate_input(params)
+
+        pprint(params)
+
         filepaths = self.get_fasta_filepaths(params)
-
-
 
 
         blast_parameters = {"query_fasta_filepath": filepaths["query_fasta_filepath"],
                             "subject_fasta_filepath": filepaths["subject_fasta_filepath"],
-                            "params": params,
+                            "blast_options" : DiamondValidator.blast_options,
                             "blast_type": "blastp"}
 
-        blast_result = diamond.blast(blast_parameters).output_filename
+        pprint(blast_parameters)
+        exit(1)
+
+        blast_result = blast(blast_parameters).output_filename
         uploaded_blast_result = self.upload_blast_result(blast_result)
 
         html_report = self.build_html_reports(blast_result)

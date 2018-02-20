@@ -45,14 +45,6 @@ def makedb(filename):
     :returns: status of command
     """
     print("Making DATABASE with" + filename)
-
-    N = 10
-    f = open(filename)
-    for i in range(N):
-        line = f.next().strip()
-        print line
-    f.close()
-
     args = [diamond, "makedb", "--in", filename, "--db", filename]
     print(args)
     return check_output(args)
@@ -98,6 +90,9 @@ def blast(parameters):
         os.path.basename(subject_fasta_filepath)
     )
     args = [diamond, blast_type, "--query", query_fasta_filepath, "--db", db, "--out", output_file]
+    args.append(parameters['optional_params'])
+
+    exit(1)
     try:
         result = check_output(args)
         return blast_output(result, output_file, parameters)
