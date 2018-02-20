@@ -341,6 +341,7 @@ class kb_diamond:
         self.workspace_name = params.get("workspace_name")
         self.token = ctx["token"]
 
+
         dv = DiamondValidator(params)
 
         filepaths = self.get_fasta_filepaths(params)
