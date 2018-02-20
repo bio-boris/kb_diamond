@@ -68,9 +68,14 @@ class DiamondValidator(object):
         :param params:
         :return:
         """
+        empty_params = []
         for item in params:
             if params[item] is None or params[item] == '':
-                del(params[item])
+                empty_params.append(item)
+
+        for item in empty_params:
+            del(params[item])
+
 
         for item in params.keys():
             if item in self.narrative_parameters:
