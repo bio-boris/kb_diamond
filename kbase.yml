@@ -2,7 +2,7 @@ module-name:
     kb_diamond
 
 module-description:
-    A KBase module
+    A KBase module 
 
 service-language:
     python
